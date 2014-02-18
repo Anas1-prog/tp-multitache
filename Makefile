@@ -7,7 +7,7 @@ CPPFLAGS = -Wall
 EDLFLAGS = 
 LIBS = 
 LIBPATH = /shares/public/tp/tp-multitache
-INCPATH = 
+INCPATH = /shares/public/tp/tp-multitache
 CLEAN = efface
 RMFLAGS = -f
 
@@ -21,7 +21,7 @@ OBJ = $(INT:.h=.o)
 
 $(EXE) : $(OBJ)
 	$(ECHO) EDL de $(EXE)
-	$(EDL) -o $(EXE) $(OBJ) -L$(LIBPATH) -l$(LIBNAME)
+	$(EDL) -o $(EXE) $(OBJ) -L$(LIBPATH) -l$(LIBNAME) -I$(INCPATH)
 	
 %.o : %.cpp
 	$(ECHO) compilation $<
