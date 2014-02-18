@@ -2,9 +2,7 @@
 *.slo
 *.lo
 *.o
-Heure.h
-Menu.h
-Outils.h
+
 
 # Compiled Dynamic libraries
 *.so
