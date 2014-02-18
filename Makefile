@@ -11,7 +11,7 @@ INCPATH = /shares/public/tp/tp-multitache
 CLEAN = efface
 RMFLAGS = -f
 
-LIBNAME = tp
+LIBNAMEOPT = -ltp -lncurses -ltcl
 
 INT = Mere.h
 REAL = $(INT: .h = .cpp)
@@ -21,7 +21,7 @@ OBJ = $(INT:.h=.o)
 
 $(EXE) : $(OBJ)
 	$(ECHO) EDL de $(EXE)
-	$(EDL) -o $(EXE) $(OBJ) -L$(LIBPATH) -l$(LIBNAME) -I$(INCPATH)
+	$(EDL) -o $(EXE) $(OBJ) -L$(LIBPATH) $(LIBNAMEOPT) -I$(INCPATH)
 	
 %.o : %.cpp
 	$(ECHO) compilation $<
