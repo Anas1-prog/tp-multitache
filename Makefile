@@ -6,8 +6,8 @@ EXE = Parking
 CPPFLAGS = -Wall
 EDLFLAGS = 
 LIBS = 
-LIBPATH = /shares/public/tp/tp-multitache
-INCPATH = /shares/public/tp/tp-multitache
+LIBPATH = -L/shares/public/tp/tp-multitache
+INCPATH = -I/shares/public/tp/tp-multitache
 CLEAN = efface
 RMFLAGS = -f
 
@@ -21,11 +21,11 @@ OBJ = $(INT:.h=.o)
 
 $(EXE) : $(OBJ)
 	$(ECHO) EDL de $(EXE)
-	$(EDL) -o $(EXE) $(OBJ) -L$(LIBPATH) $(LIBNAMEOPT) -I$(INCPATH)
+	$(EDL) -o $(EXE) $(OBJ) $(LIBPATH) $(LIBNAMEOPT) $(INCPATH)
 	
 %.o : %.cpp
 	$(ECHO) compilation $<
-	$(COMP) $(CPPFLAGS) -c $<
+	$(COMP) $(CPPFLAGS) $(INCPATH) -c $<
 
 efface :
 	$(ECHO) Nettoyage

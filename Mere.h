@@ -29,6 +29,6 @@
 //
 // Contrat :
 //
-
+static void finHeure (int noSignal);
 #endif // MERE_H_
 
