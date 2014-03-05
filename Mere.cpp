@@ -19,12 +19,14 @@
 #include "Clavier.h"
 #include "Outils.h"
 #include "Heure.h"
+#include "Entree.h"
 ///////////////////////////////////////////////////////////////////  PRIVE
 //------------------------------------------------------------- Constantes
 
 //------------------------------------------------------------------ Types
 
 //---------------------------------------------------- Variables statiques
+
 //------------------------------------------------------ Fonctions privées
 //static type nom ( liste de paramètres )
 // Mode d'emploi :
@@ -35,7 +37,7 @@
 //
 //{
 //} //----- fin de nom
-static void finHeure ( int noSignal )
+void finHeure ( int noSignal )
 {
 	if ( noSignal == SIGUSR2 )
 	{
@@ -49,25 +51,38 @@ int main ( void )
 // Algorithme :
 //
 {
+	pipe(canal);
 	pid_t noFils1;
 	pid_t noFils2;
+	pid_t noFils3;
 	InitialiserApplication( XTERM );
 	if ( ( noFils1 = fork() ) == 0 )
 	{
+		close(canal[0]);
 		Clavier(); //Création de la tache fils Clavier
+		close(canal[1]);
 //		sleep(10);
 	}
 	else
 	{
-		struct sigaction action;
-		action.sa_handler = finHeure;
-		sigemptyset ( &action.sa_mask );
-		sigaction ( SIGUSR2, &action, NULL);
-		noFils2 = ActiverHeure();	//Création de la tache fils Heure
-		waitpid ( noFils1 , NULL , 0 ); // Attente de la Fin de la tache Clavier
-		kill ( noFils2 , SIGUSR2 );
-		waitpid ( noFils2 , NULL , 0 );
-		TerminerApplication( true );
-		exit(0);
+		if( ( noFils3 = fork() ) == 0 )
+		{
+			close(canal[1]);
+			Entree();
+			close(canal[0]);
+		}
+		else
+		{
+			struct sigaction action;
+			action.sa_handler = finHeure;
+			sigemptyset ( &action.sa_mask );
+			sigaction ( SIGUSR2, &action, NULL);
+			noFils2 = ActiverHeure();	//Création de la tache fils Heure
+			waitpid ( noFils1 , NULL , 0 ); // Attente de la Fin de la tache Clavier
+			kill ( noFils2 , SIGUSR2 );
+			waitpid ( noFils2 , NULL , 0 );
+			TerminerApplication( true );
+			exit(0);
+		}
 	}
 } //----- fin de Nom

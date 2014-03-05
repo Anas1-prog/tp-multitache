@@ -14,7 +14,8 @@
 
 //------------------------------------------------------ Include personnel
 #include "Clavier.h"
-#include "/shares/public/tp/tp-multitache/Menu.h"
+#include "Menu.h"
+#include "Mere.h"
 
 ///////////////////////////////////////////////////////////////////  PRIVE
 //------------------------------------------------------------- Constantes
@@ -22,6 +23,7 @@
 //------------------------------------------------------------------ Types
 
 //---------------------------------------------------- Variables statiques
+
 
 //------------------------------------------------------ Fonctions privées
 //static type nom ( liste de paramètres )
@@ -54,6 +56,17 @@ void Commande ( char Code, unsigned int valeur )
 	{
 	case 'Q' :
 		exit(0);
+		break;
+	case 'P' :
+		switch(valeur)
+		{
+			//TODO : Ecrire sur le bon canal de communication
+			default	:
+				char c = 'a';
+				write( canal[1], &c, sizeof(char));
+				sleep(1);
+				break;
+		}
 		break;
 	}
 } //----- fin de Commande

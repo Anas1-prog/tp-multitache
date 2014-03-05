@@ -13,7 +13,7 @@ RMFLAGS = -f
 
 LIBNAMEOPT = -ltp -lncurses -ltcl
 
-INT = Mere.h Clavier.h
+INT = Mere.h Clavier.h Entree.h
 REAL = $(INT: .h = .cpp)
 OBJ = $(INT:.h=.o)
 
