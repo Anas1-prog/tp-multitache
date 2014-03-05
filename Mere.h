@@ -19,7 +19,7 @@
 //--------------------------------------------------- Interfaces utilisées
 
 //------------------------------------------------------------- Constantes
-static int canal[2];
+
 //------------------------------------------------------------------ Types
 
 //////////////////////////////////////////////////////////////////  PUBLIC
@@ -30,5 +30,16 @@ static int canal[2];
 // Contrat :
 //
 void finHeure (int noSignal);
-#endif // MERE_H_
+// Mode d'emploi :
+//
+// Contrat :
+//
 
+void SetSignalHandler(int signalNumber, void (*handler) (int) );
+// Mode d'emploi :
+//Prend en parametre le signal et lui attribue une fonction que la tache executera
+//à la reception de ce signal
+// Contrat :
+//
+
+#endif // MERE_H_

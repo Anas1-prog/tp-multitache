@@ -34,7 +34,31 @@
 //
 // Contrat :
 //
-void Entree();
+static void initialisation();
+// Mode d'emploi :
+//
+// Contrat :
+//
+
+
+static void destruction();
+// Mode d'emploi :
+//
+// Contrat :
+//
+
+static void entreeVoiture();
+// Mode d'emploi :
+//
+// Contrat :
+//
+
+void Entree(int canalL,int canalE);
+// Mode d'emploi :
+//
+// Contrat :
+//
+
 
 #endif // ENTREE_H
 

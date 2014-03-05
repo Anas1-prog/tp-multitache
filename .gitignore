@@ -13,3 +13,4 @@
 *.la
 *.a
 libtp.a
+/tp-multitache

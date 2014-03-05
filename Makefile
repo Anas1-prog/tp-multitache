@@ -6,14 +6,14 @@ EXE = Parking
 CPPFLAGS = -Wall
 EDLFLAGS = 
 LIBS = 
-LIBPATH = -L/shares/public/tp/tp-multitache
-INCPATH = -I/shares/public/tp/tp-multitache
+LIBPATH = -L/home/keke/Repo/tp-multitache/tp-multitache
+INCPATH = -I/home/keke/Repo/tp-multitache/tp-multitache
 CLEAN = efface
 RMFLAGS = -f
 
 LIBNAMEOPT = -ltp -lncurses -ltcl
 
-INT = Mere.h Clavier.h Entree.h
+INT = Mere.h Clavier.h Sortie.h Entree.h
 REAL = $(INT: .h = .cpp)
 OBJ = $(INT:.h=.o)
 

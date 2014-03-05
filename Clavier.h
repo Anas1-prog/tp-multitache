@@ -19,6 +19,8 @@
 //--------------------------------------------------- Interfaces utilisées
 #include <unistd.h>
 #include <sys/wait.h>
+#include <vector>
+#include <iostream>
 
 //------------------------------------------------------------- Constantes
 
@@ -32,7 +34,7 @@
 // Contrat :
 //
 
-void Clavier (  );
+void Clavier ( int canalLecS, int canalEcrS,int canalLecGB,int canalEcrGB,int canalLecPBP,int canalEcrPBP,int canalLecABP,int canalEcrABP );
 // Mode d'emploi :
 //
 // Contrat :

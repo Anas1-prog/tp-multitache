@@ -26,7 +26,10 @@
 //------------------------------------------------------------------ Types
 
 //---------------------------------------------------- Variables statiques
-
+static int CanalLectureS , CanalEcritureS;
+static int CanalLectureEGB , CanalEcritureEGB;
+static int CanalLecturePBP , CanalEcriturePBP;
+static int CanalLectureABP , CanalEcritureABP;
 //------------------------------------------------------ Fonctions privées
 //static type nom ( liste de paramètres )
 // Mode d'emploi :
@@ -45,44 +48,110 @@ void finHeure ( int noSignal )
 	}
 }
 
+static void initialisation ( )
+{
+
+	//Création du canal de communication Clavier->EntreeGastonBerger
+		int canalEGB[2];
+		pipe(canalEGB);
+		CanalLectureEGB = canalEGB[0];
+		CanalEcritureEGB = canalEGB[1];
+
+
+	//Création du canal de communication Clavier->EntreeProfBlaisePascal
+		int canalPBP[2];
+		pipe(canalPBP);
+		CanalLecturePBP = canalPBP[0];
+		CanalEcriturePBP = canalPBP[1];
+
+	//Création du canal de communication Clavier->EntreeProfBlaisePascal
+		int canalABP[2];
+		pipe(canalABP);
+		CanalLectureABP = canalABP[0];
+		CanalEcritureABP = canalABP[1];
+
+	//Création du canal de communication Clavier->Sortie
+		int canalS[2];
+		pipe(canalS);
+		CanalLectureS = canalS[0];
+		CanalEcritureS = canalS[1];
+}
+
+
 //////////////////////////////////////////////////////////////////  PUBLIC
 //---------------------------------------------------- Fonctions publiques
 int main ( void )
 // Algorithme :
 //
 {
-	pipe(canal);
-	pid_t noFils1;
-	pid_t noFils2;
-	pid_t noFils3;
+
+	pid_t clavierPid;
+	pid_t heurePid;
+	pid_t entreeABPPid, entreePBPPid, entreeGBPid;
+	pid_t sortiePid;
+
+		//--------------------------------------------------Initialisation
+
 	InitialiserApplication( XTERM );
-	if ( ( noFils1 = fork() ) == 0 )
+	initialisation();//Appel de la fonction d'initialisation de la tache
+
+
+	if ( ( clavierPid = fork() ) == 0 )
 	{
-		close(canal[0]);
-		Clavier(); //Création de la tache fils Clavier
-		close(canal[1]);
+	//	close(canal[0]);//Fait dans Clavier
+		Clavier(CanalLectureS,CanalEcritureS,CanalLectureEGB,CanalEcritureEGB,CanalLecturePBP,CanalEcriturePBP,CanalLectureABP,CanalEcritureABP); //Création de la tache fils Clavier
 //		sleep(10);
+	}
+	else if( ( sortiePid = fork() ) == 0 )
+	{
+		//close(canalEGB[1]);
+		Entree(CanalLectureS,CanalEcritureS);
+		//close(canalEGB[0]);
+	}
+	else if( ( entreeGBPid = fork() ) == 0 )
+	{
+		//close(canalEGB[1]);
+		Entree(CanalLectureEGB,CanalEcritureEGB);
+		//close(canalEGB[0]);
+	}
+	else if( ( entreeABPPid = fork() ) == 0 )
+	{
+		//close(canalEGB[1]);
+		Entree(CanalLectureABP,CanalEcritureABP);
+		//close(canalEGB[0]);
+	}
+	else if( ( entreePBPPid = fork() ) == 0 )
+	{
+		//close(canalEGB[1]);
+		Entree(CanalLecturePBP,CanalEcriturePBP);
+		//close(canalEGB[0]);
 	}
 	else
 	{
-		if( ( noFils3 = fork() ) == 0 )
-		{
-			close(canal[1]);
-			Entree();
-			close(canal[0]);
-		}
-		else
-		{
+		//---------------------------------------------Phase Moteur
+			heurePid = ActiverHeure();	//Création de la tache fils Heure
+
+			//---------------------------------------------Destruction
 			struct sigaction action;
 			action.sa_handler = finHeure;
 			sigemptyset ( &action.sa_mask );
 			sigaction ( SIGUSR2, &action, NULL);
-			noFils2 = ActiverHeure();	//Création de la tache fils Heure
-			waitpid ( noFils1 , NULL , 0 ); // Attente de la Fin de la tache Clavier
-			kill ( noFils2 , SIGUSR2 );
-			waitpid ( noFils2 , NULL , 0 );
+
+			waitpid ( clavierPid , NULL , 0 ); // Attente de la Fin de la tache Clavier
+			kill ( heurePid , SIGUSR2 );
+			waitpid ( heurePid , NULL , 0 );
 			TerminerApplication( true );
 			exit(0);
 		}
-	}
-} //----- fin de Nom
+}
+
+
+
+void SetSignalHandler ( int signalNumber, void (*handler) (int) )
+{
+	struct sigaction action;
+	action.sa_handler = handler;
+	sigemptyset ( &action.sa_mask );
+	action.sa_flags = 0;
+	sigaction ( signalNumber, &action, NULL );
+} // Fin de SetSignalHandler
