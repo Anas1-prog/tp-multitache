@@ -140,6 +140,11 @@ int main ( void )
 			waitpid ( clavierPid , NULL , 0 ); // Attente de la Fin de la tache Clavier
 			kill ( heurePid , SIGUSR2 );
 			waitpid ( heurePid , NULL , 0 );
+
+				//Provoquer la mort des taches filles (Entree-Sortie)
+				//Supprimer les canaux de communication
+
+
 			TerminerApplication( true );
 			exit(0);
 		}

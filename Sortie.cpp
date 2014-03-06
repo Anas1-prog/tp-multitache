@@ -1,23 +1,26 @@
-
 /*************************************************************************
                           Clavier  -  description
                              -------------------
     début                : 18 févr. 2014
-    copyright            : (C) 2014 par Amaury
+    copyright            : (C) 2014 par kantoine
 *************************************************************************/
 
-//---------- Réalisation de la tâche <Entree> (fichier Entree.cpp) ---
+//---------- Réalisation de la tâche <Clavier> (fichier Clavier.cpp) ---
 
 /////////////////////////////////////////////////////////////////  INCLUDE
 //-------------------------------------------------------- Include système
-
+#include <stdlib.h>
+#include <signal.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 //------------------------------------------------------ Include personnel
-#include "Entree.h"
+#include "Sortie.h"
 #include "Mere.h"
 
 ///////////////////////////////////////////////////////////////////  PRIVE
 //------------------------------------------------------------- Constantes
-
+static int CanalLectureS;
 //------------------------------------------------------------------ Types
 
 //---------------------------------------------------- Variables statiques
@@ -34,16 +37,12 @@
 //} //----- fin de nom
 
 
-static void entreeVoiture(int numSignal)
-// Mode d'emploi :
-//
-// Contrat :
-//
-// Algorithme :
-//
-{
+		//TODO Fonction de comparaison des priorités
+//static void comparaisonPriorite()
 
-} //----- fin de entreeVoiture
+		//TODO Fonction qui compare les priorités des voitures devant chaque portes et
+		//qui signale à l'entrée concerné qu'elle peut faire entrer une nouvelle voiture
+//static void choixEntreePrioritaire()
 
 static void initialisation ( )
 //Mode d'emploi
@@ -52,50 +51,41 @@ static void initialisation ( )
 //
 {
 	SetSignalHandler ( SIGUSR2 , destruction ) ;
-	SetSignalHandler ( SIGCHLD , entreeVoiture ) ;
+	SetSignalHandler ( SIGCHLD , sortieVoiture ) ;
+
 }
 
-static void destruction ()
+static void destruction( int numeroSignal)
 //Mode d'emploi
-//Declenche par la reception du signal SIGUSR2
-//Algorithme
+//Appelé lorsqu'on veut détruire la tache sortie
+//Algo
+//Tue toutes les taches filles en cours
+{
+
+}
+
+static void sortieVoiture(int numeroSignal)
+//Mode d'emploi
+//
+//Algo
 //
 {
-	//Masquage du signal
-	SetSignalHandler(SIGCHLD, SIG_IGN);
-
-	//Kill tous les voituriers en cours
-
-
+	//Maj memoire partagée NbPlace-- et suppression de la PlacedeParking occupée
 }
-
 //////////////////////////////////////////////////////////////////  PUBLIC
 //---------------------------------------------------- Fonctions publiques
-
-
-void Entree(int CanalL,int CanalE)
+void Sortie ( int canalL,int canalE)
+// Algorithme :
+//
 {
-
-
-	//---------------------------------------------------Initialisation
+	//------------------------------------------------Initialisation
+	CanalLectureS=canalL;
+	close(canalE);
 	initialisation();
 
-	//---------------------------------------------------Phase Moteur
-
-	//1. Verifier qu'il y a des places disponibles
-		//Si aucune place dispo, attendre
+	//------------------------------------------------Phase moteur
 
 
 
-	//TODO Modifier pour la fin
-	char car;
-	pid_t voiturier;
-	//TODO Modifier la condition pour fin si plus de personne qui écrit sur le canal
-	while( read( CanalL, &car, sizeof(char)))
-	{
-		voiturier = GarerVoiture(PROF_BLAISE_PASCAL);
-		
-	}
-	waitpid(voiturier, NULL, 0);
-}
 
+} //----- fin de Sortie
