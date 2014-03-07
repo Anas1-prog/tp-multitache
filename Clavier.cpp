@@ -67,9 +67,10 @@ static void fileDeVoiture(TypeBarriere entree,TypeUsager usager)
 //Algo
 // Ajoute une nouvelle voiture avec ses proprietes à une entree donnée
 {
-	char c='N';
+	Voiture voiture = Voiture(usager);
+	RequeteVoiture message = RequeteVoiture(entree,voiture);
 	DessinerVoitureBarriere(entree, usager );
-	write( canalCommun, &c, sizeof(c) );
+	write( canalCommun, &message, sizeof(message) );
 	//write()
 	//Communique avec l'entrée choisie pour lui dire de laisser entrer une nouvelle voiture
 }

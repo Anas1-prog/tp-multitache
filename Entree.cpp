@@ -13,6 +13,7 @@
 
 //------------------------------------------------------ Include personnel
 #include "Entree.h"
+#include "Util.h"
 
 ///////////////////////////////////////////////////////////////////  PRIVE
 //------------------------------------------------------------- Constantes
@@ -22,6 +23,7 @@
 
 //---------------------------------------------------- Variables statiques
 static int canalLectureE;
+static int autorisationPassage;
 static map<unsigned int, pid_t> voiturierEntree;
 //------------------------------------------------------ Fonctions privées
 //static type nom ( liste de paramètres )
@@ -73,6 +75,23 @@ void destructionEntree (int numSignal)
 	exit(0);
 }
 
+void passageVoiture()
+{
+	autorisationPassage = true;
+}
+
+int verificationPlacesLibres()
+{
+
+	//Prise du Mutex
+	semaphore(CLEF,-1);
+
+	//Acces memoire partagée
+	int memoirePartagee = shmget ( CLEF , sizeof(EtatParking), IPC_EXCL);
+	EtatParking etat = shmat(memoirePartagee, NULL, 0);
+	return etat.placeLibres;
+}
+
 //////////////////////////////////////////////////////////////////  PUBLIC
 //---------------------------------------------------- Fonctions publiques
 
@@ -81,7 +100,7 @@ void Entree(int canal[2], TypeBarriere barriere)
 {
 
 	int lecture=0;
-	char car;
+	RequeteVoiture message;
 	canalLectureE=canal[0];
 	close(canal[1]);
 
@@ -94,12 +113,24 @@ void Entree(int canal[2], TypeBarriere barriere)
 
 	for(;;)
 	{
-		lecture = read( canalLectureE, &car, sizeof( char ) );
+		lecture = read( canalLectureE, &message, sizeof( char ) );
 		
 		if ( lecture > 0 )
 		{
-			GarerVoiture(barriere);
-			sleep(ENTREE_DELAIS);
+
+			//Verification si il y a des places de libres dans le parking :
+			if (verificationPlacesLibres()<0)
+			{
+				//Attente de l'envoi d'un signal par la sortie
+				Handler(SIGUSR1, passageVoiture );
+				autorisationPassage = false;
+			}
+
+
+		GarerVoiture(barriere);
+		sleep(ENTREE_DELAIS);
+
+
 		}
 		else if (lecture == 0)
 		{

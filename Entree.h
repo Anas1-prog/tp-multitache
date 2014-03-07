@@ -24,6 +24,8 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sys/sem.h>
+#include <sys/shm.h>
 #include <stdlib.h>
 #include <signal.h>
 #include <sys/types.h>
@@ -52,6 +54,11 @@ void initialisation();
 // Contrat :
 //
 
+int verificationPlacesLibres();
+// Mode d'emploi :
+//
+// Contrat :
+//
 
 void destructionEntree(int numSignal);
 // Mode d'emploi :
