@@ -25,6 +25,7 @@
 static int canalLectureE;
 static int autorisationPassage;
 static map<unsigned int, pid_t> voiturierEntree;
+extern const int CLEF;
 //------------------------------------------------------ Fonctions privées
 //static type nom ( liste de paramètres )
 // Mode d'emploi :

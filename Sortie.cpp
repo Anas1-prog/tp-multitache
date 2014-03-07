@@ -24,6 +24,7 @@
 //------------------------------------------------------------- Constantes
 static int canalLectureS;
 static map<int, pid_t> voiturierSortie;
+extern const int CLEF;
 //------------------------------------------------------------------ Types
 
 //---------------------------------------------------- Variables statiques

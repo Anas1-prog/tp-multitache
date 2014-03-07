@@ -34,6 +34,7 @@ static int canalABP[2];
 static int canalPBP[2];
 static int canalGB[2];
 static int canalCommun;
+extern const int CLEF;
 
 //------------------------------------------------------ Fonctions privées
 static TypeBarriere getTypeBarriere(int numeroBarriere,TypeUsager usager)
