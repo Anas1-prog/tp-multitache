@@ -45,6 +45,41 @@ void entreeVoiture(int numSignal)
 // Algorithme :
 //
 {
+	int crdu;
+	pid_t pid;
+
+	//Verifie la fin d'un fils, WNOHANG : non bloquant
+	while ( (pid = waitpid(-1,&crdu,WNOHANG) ) > 0 )
+	{
+		if (WIFEXITED ( crdu ))
+		{
+			int numPlace = WEXITSTATUS ( crdu );
+			Voiture voiture = voiturierEntree[pid];
+			voiture.heureArrivee = time(NULL);
+			//Suppression de la liste des voituriers qui travaillent
+			voiturierEntree.erase(pid);
+
+			//Prise du Mutex
+			semaphore(CLEF,-1);
+			//Acces memoire partagée
+			int memoirePartagee = shmget ( CLEF , sizeof(EtatParking), IPC_EXCL);
+			EtatParking * etat = (EtatParking *)shmat(memoirePartagee, NULL, 0);
+
+			//Ajout de la voiture qui vient d'entrer dans la memoire et decrementation nb place
+			etat->place[numPlace-1]=voiture;
+			etat->placeLibres--;
+
+			//Libere la memoire
+			shmdt(etat);
+			//Libere le Mutex
+			semaphore(CLEF,1);
+
+			//Afficher la voiture sur la memoire terminal
+			AfficherPlace( numPlace, voiture.usager, voiture.matricule,voiture.heureArrivee);
+
+		}
+	}
+
 
 } //----- fin de entreeVoiture
 
@@ -89,7 +124,8 @@ int verificationPlacesLibres()
 	//Acces memoire partagée
 	int memoirePartagee = shmget ( CLEF , sizeof(EtatParking), IPC_EXCL);
 	EtatParking * etat = (EtatParking *)shmat(memoirePartagee, NULL, 0);
-	return etat->placeLibres;
+	int retour = etat->placeLibres;
+
 }
 
 //////////////////////////////////////////////////////////////////  PUBLIC

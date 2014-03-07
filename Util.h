@@ -80,10 +80,12 @@ struct EtatParking
 	RequeteVoiture requetes[NB_ENTREES];
 };
 
-#endif /* UTIL_H_ */
+
 
 //////////////////////////////////////////////////////////////////  PUBLIC
 //---------------------------------------------------- Fonctions publiques
 
 void Handler( int numSignal, void (*handler) (int) );
 void semaphore(int clef, short semOp);
+
+#endif /* UTIL_H_ */

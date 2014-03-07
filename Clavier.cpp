@@ -69,7 +69,6 @@ static void fileDeVoiture(TypeBarriere entree,TypeUsager usager)
 	RequeteVoiture message = RequeteVoiture(entree,voiture);
 	DessinerVoitureBarriere(entree, usager );
 	write( canalCommun, &message, sizeof(message) );
-	//write()
 	//Communique avec l'entrée choisie pour lui dire de laisser entrer une nouvelle voiture
 }
 
