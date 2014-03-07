@@ -53,18 +53,18 @@ static void initialisation ( )
 //Algo
 //
 {
-	SetSignalHandler ( SIGUSR2 , destruction ) ;
+	SetSignalHandler ( SIGUSR2 , destructionSortie ) ;
 	SetSignalHandler ( SIGCHLD , sortieVoiture ) ;
 
 }
 
-void destruction( int numeroSignal)
+void destructionSortie( int numeroSignal)
 //Mode d'emploi
 //Appelé lorsqu'on veut détruire la tache sortie
 //Algo
-//Tue toutes les taches filles en cours
+//TODO Tue toutes les taches filles en cours
 {
-
+	exit(0);
 }
 
 void sortieVoiture(int numeroSignal)

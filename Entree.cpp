@@ -10,10 +10,20 @@
 
 /////////////////////////////////////////////////////////////////  INCLUDE
 //-------------------------------------------------------- Include système
+//#include <iostream>
+//#include <map>
+//#include <unistd.h>
+//#include <sys/types.h>
+//#include <sys/wait.h>
+//#include <stdlib.h>
+//#include <signal.h>
+//#include <sys/types.h>
+//#include <sys/wait.h>
 
 //------------------------------------------------------ Include personnel
 #include "Entree.h"
-#include "Mere.h"
+//#include "Mere.h"
+//#include "Outils.h"
 
 ///////////////////////////////////////////////////////////////////  PRIVE
 //------------------------------------------------------------- Constantes
@@ -22,6 +32,7 @@
 
 //---------------------------------------------------- Variables statiques
 static int canalLectureE;
+static map<unsigned int, pid_t> voiturierEntree;
 //------------------------------------------------------ Fonctions privées
 //static type nom ( liste de paramètres )
 // Mode d'emploi :
@@ -51,11 +62,11 @@ void initialisation ( )
 //Algo
 //
 {
-	SetSignalHandler ( SIGUSR2 , destruction ) ;
+	SetSignalHandler ( SIGUSR2 , destructionEntree ) ;
 	SetSignalHandler ( SIGCHLD , entreeVoiture ) ;
 }
 
-static void destruction (int numSignal)
+void destructionEntree (int numSignal)
 //Mode d'emploi
 //Declenche par la reception du signal SIGUSR2
 //Algorithme
@@ -63,10 +74,8 @@ static void destruction (int numSignal)
 {
 	//Masquage du signal SIGCHLD
 	SetSignalHandler(SIGCHLD, SIG_IGN);
-
-	//Kill tous les voituriers en cours
-
-
+	//TODO Kill tous les voituriers en cours
+	exit(0);
 }
 
 //////////////////////////////////////////////////////////////////  PUBLIC

@@ -36,7 +36,7 @@
 //
 
 void Sortie ( int canal[2]);
-void destruction(int numeroSignal);
+void destructionSortie(int numeroSignal);
 void sortieVoiture(int numeroSignal);
 
 

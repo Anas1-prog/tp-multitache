@@ -27,10 +27,7 @@
 //------------------------------------------------------------------ Types
 
 //---------------------------------------------------- Variables statiques
-static int CanalS[2];
-static int CanalGB[2];
-static int CanalPBP[2];
-static int CanalABP[2];
+
 //------------------------------------------------------ Fonctions privées
 //static type nom ( liste de paramètres )
 // Mode d'emploi :
@@ -63,12 +60,12 @@ void SetSignalHandler ( int signalNumber, void (*handler) (int) )
 
 //////////////////////////////////////////////////////////////////  PUBLIC
 //---------------------------------------------------- Fonctions publiques
-int main ( void )
+int main ( int argc, const char * argv[] )
 // Algorithme :
 //
 {
 
-	system("ipcs > ipc_b.txt");
+	system("ipcs > ipc_e.txt");
 	pid_t clavierPid;
 	pid_t heurePid;
 	pid_t entreeABPPid, entreePBPPid, entreeGBPid;
@@ -81,7 +78,6 @@ int main ( void )
 	//Création du canal de communication Clavier->EntreeGastonBerger
 	int canalGB[2];
 	pipe(canalGB);
-
 	//Création du canal de communication Clavier->EntreeProfBlaisePascal
 	int canalPBP[2];
 	pipe(canalPBP);
@@ -98,7 +94,7 @@ int main ( void )
 	if ( ( clavierPid = fork() ) == 0 )
 	{
 	//	close(canal[0]);//Fait dans Clavier
-		Clavier(CanalS,CanalGB,CanalPBP,CanalABP); //Création de la tache fils Clavier
+		Clavier(CanalS,CanalGB,CanalPBP,CanalABP); //Création de la tache fille Clavier
 //		sleep(10);
 	}
 	else if( ( entreeGBPid = fork() ) == 0 )
@@ -123,21 +119,24 @@ int main ( void )
 			heurePid = ActiverHeure();	//Création de la tache fils Heure
 
 			//---------------------------------------------Destruction
-			struct sigaction action;
-			action.sa_handler = finHeure;
-			sigemptyset ( &action.sa_mask );
-			sigaction ( SIGUSR2, &action, NULL);
-
+			SetSignalHandler ( SIGUSR2, finHeure);
 			waitpid ( clavierPid , NULL , 0 ); // Attente de la Fin de la tache Clavier
 			kill ( heurePid , SIGUSR2 );
 			waitpid ( heurePid , NULL , 0 );
+			kill ( sortiePid , SIGUSR2 );
+			waitpid( sortiePid , NULL , 0 );
+			kill ( entreeGBPid , SIGUSR2 );
+			waitpid( entreeGBPid , NULL , 0 );
+			kill ( entreeABPPid , SIGUSR2 );
+			waitpid( entreeABPPid , NULL , 0 );
+			kill ( entreePBPPid , SIGUSR2 );
+			waitpid( entreePBPPid , NULL , 0 );
 
-				//Provoquer la mort des taches filles (Entree-Sortie)
 				//Supprimer les canaux de communication
 
 
 			TerminerApplication( true );
-			system("ipcs > ipc_b.txt");
+			system("ipcs > ipc_s.txt");
 			exit(0);
 		}
 }
@@ -146,7 +145,10 @@ int main ( void )
 
 /*Etape de developpement :
  *
- * Entrees de voitures fonctionnelles : communication de la tache clavier avec l'entree
+ * - Affichage des voitures aux différentes entrées : communication de la tache clavier avec l'entree
+ * concernée
+ *
+ * - Entrees de voitures fonctionnelles : communication de la tache clavier avec l'entree
  * concernée pour faire entrer une voiture dans le parking
  *
  *

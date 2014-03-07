@@ -17,11 +17,23 @@
 //------------------------------------------------------------------------
 
 /////////////////////////////////////////////////////////////////  INCLUDE
-//--------------------------------------------------- Interfaces utilisées
+/////////////////////////////////////////////////////////////////  INCLUDE
+//-------------------------------------------------------- Include système
+#include <iostream>
+#include <map>
 #include <unistd.h>
-#include "Outils.h"
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <stdlib.h>
+#include <signal.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
+//------------------------------------------------------ Include personnel
+
+#include "Mere.h"
+#include "Outils.h"
+//--------------------------------------------------- Interfaces utilisées
 
 //------------------------------------------------------------- Constantes
 
@@ -41,7 +53,7 @@ void initialisation();
 //
 
 
-static void destruction(int numSignal);
+void destructionEntree(int numSignal);
 // Mode d'emploi :
 //
 // Contrat :

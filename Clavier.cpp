@@ -11,7 +11,12 @@
 //-------------------------------------------------------- Include système
 #include <stdlib.h>
 #include <fcntl.h>
-
+#include <cstdio>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <signal.h>
+#include <stdio.h>
 
 //------------------------------------------------------ Include personnel
 #include "Clavier.h"
@@ -26,10 +31,10 @@
 
 //---------------------------------------------------- Variables statiques
 
-static int canalEcritureS;
-static int canalEcritureABP;
-static int canalEcriturePBP;
-static int canalEcritureGB;
+static int canalS[2];
+static int canalABP[2];
+static int canalPBP[2];
+static int canalGB[2];
 static int canalCommun;
 
 //------------------------------------------------------ Fonctions privées
@@ -40,19 +45,19 @@ static TypeBarriere getTypeBarriere(int numeroBarriere,TypeUsager usager)
 {
 	if (numeroBarriere == 2)
 	{
-		canalCommun = canalEcritureGB;
+		canalCommun = canalGB[1];
 		return ENTREE_GASTON_BERGER;
 	}
 	else
 	{
 		if (usager == PROF )
 		{
-			canalCommun = canalEcriturePBP;
+			canalCommun = canalPBP[1];
 			return PROF_BLAISE_PASCAL;
 		}
 		else
 		{
-			canalCommun = canalEcritureABP;
+			canalCommun = canalABP[1];
 			return AUTRE_BLAISE_PASCAL;
 		}
 	}
@@ -73,40 +78,30 @@ static void demandeSortie(unsigned int numeroPlace)
 //Algorithme :
 //
 {
-	write(canalEcritureS,&numeroPlace,sizeof(unsigned int));
+	write(canalS[1],&numeroPlace,sizeof(unsigned int));
 }
 
 //////////////////////////////////////////////////////////////////  PUBLIC
 //---------------------------------------------------- Fonctions publiques
-void Clavier ( int canalS[2],int canalGB[2],int canalPBP[2],int canalABP[2] )
+void Clavier ( int canals[2],int canalgb[2],int canalpbp[2],int canalabp[2] )
 // Algorithme :
 //
 {
 	//----------------------------------------------Initialisation
 
-
-
-
-	//----------Ouverture du canal nommé Clavier-Entree GB
-	canalEcritureS = canalS[1];
-		//Fermeture du coté non utilisé : Lecture Clavier Sortie
-	close(canalS[0]);
-
-	//----------Ouverture du canal nommé Clavier-Entree GB
-	canalEcritureGB = canalGB[1];
-	//Fermeture du coté non utilisé : Lecture Clavier-Entree GB
-	close(canalGB[0]);
-
-	//----------Ouverture du canal nommé Clavier-EntreeAutreBlaisePascal(ABP)
-	canalEcritureABP = canalABP[1];
-	//Fermeture du coté non utilisé : Lecture
-	close(canalABP[0]);
-
-	//----------Ouverture du canal nommé Clavier-EntreeAutreBlaisePascal(PBP)
-	canalEcriturePBP = canalPBP[1];
-	//Fermeture du coté non utilisé : Lecture
-	close(canalPBP[0]);
-
+	//----------Ouverture des canaux nommé Clavier-Entree et Sortie
+	canalS[0] = canals[0];
+	canalS[1] = canals[1];
+	canalGB[0] = canalgb[0];
+	canalABP[0] = canalabp[0];
+	canalPBP[0] = canalpbp[0];
+	canalPBP[1] = canalpbp[1];
+	printf("canalPBP[0] = %d , canalPBP[1] = %d", canalPBP[0],canalPBP[1]);
+	//		//Fermeture des cotés non utilisés
+//	close(canalS[0]); Provoque un bug lors de l'execution du programme
+//	close(canalGB[0]);
+//	close(canalABP[0]);
+//	close(canalPBP[0]);
 
 	//------------------------------------------------Phase Moteur
 	while(true)
@@ -115,18 +110,18 @@ void Clavier ( int canalS[2],int canalGB[2],int canalPBP[2],int canalABP[2] )
 	}
 } //----- fin de Clavier
 
-void Commande ( char Code, unsigned int valeur )
+void Commande ( char code, unsigned int valeur )
 // Algorithme :
 //
 {
-	switch( Code )
+	switch( code )
 	{
 	case 'Q' :
 		//Fermeture des canaux de communication avant de quitter l'application
-		close(canalEcritureS);
-		close(canalEcritureGB);
-		close(canalEcritureABP);
-		close(canalEcriturePBP);
+			close(canalS[0]);
+			close(canalGB[0]);
+			close(canalABP[0]);
+			close(canalPBP[0]);
 		exit(0);
 		break;
 	case 'P' :
