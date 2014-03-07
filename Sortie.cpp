@@ -14,13 +14,16 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <iostream>
+#include <map>
 //------------------------------------------------------ Include personnel
 #include "Sortie.h"
 #include "Mere.h"
 
 ///////////////////////////////////////////////////////////////////  PRIVE
 //------------------------------------------------------------- Constantes
-static int CanalLectureS;
+static int canalLectureS;
+static map<unsigned int, pid_t> voiturierSortie;
 //------------------------------------------------------------------ Types
 
 //---------------------------------------------------- Variables statiques
@@ -55,7 +58,7 @@ static void initialisation ( )
 
 }
 
-static void destruction( int numeroSignal)
+void destruction( int numeroSignal)
 //Mode d'emploi
 //Appelé lorsqu'on veut détruire la tache sortie
 //Algo
@@ -64,7 +67,7 @@ static void destruction( int numeroSignal)
 
 }
 
-static void sortieVoiture(int numeroSignal)
+void sortieVoiture(int numeroSignal)
 //Mode d'emploi
 //
 //Algo
@@ -74,17 +77,34 @@ static void sortieVoiture(int numeroSignal)
 }
 //////////////////////////////////////////////////////////////////  PUBLIC
 //---------------------------------------------------- Fonctions publiques
-void Sortie ( int canalL,int canalE)
+void Sortie ( int canal[2])
 // Algorithme :
 //
 {
 	//------------------------------------------------Initialisation
-	CanalLectureS=canalL;
-	close(canalE);
+	canalLectureS=canal[0];
+	int lecture;
+	int numPlace;
+	close(canal[1]);//Fermeture du canal de lecture
 	initialisation();
 
 	//------------------------------------------------Phase moteur
+	for (;;)
+	{
+		lecture = read(canalLectureS,&numPlace, sizeof(int));
 
+		if(lecture>0)
+		{
+			if (voiturierSortie.find(numPlace) == voiturierSortie.end())
+			{
+				pid_t voiturierpid = SortirVoiture(numPlace);
+				if (voiturierpid !=-1)
+				{
+					voiturierSortie[numPlace] = voiturierpid;
+				}
+			}
+		}
+	}
 
 
 

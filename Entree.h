@@ -34,26 +34,26 @@
 //
 // Contrat :
 //
-static void initialisation();
+void initialisation();
 // Mode d'emploi :
 //
 // Contrat :
 //
 
 
-static void destruction();
+static void destruction(int numSignal);
 // Mode d'emploi :
 //
 // Contrat :
 //
 
-static void entreeVoiture();
+void entreeVoiture(int numSignal);
 // Mode d'emploi :
 //
 // Contrat :
 //
 
-void Entree(int canalL,int canalE);
+void Entree(int canal[2], TypeBarriere barriere);
 // Mode d'emploi :
 //
 // Contrat :

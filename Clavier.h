@@ -34,7 +34,7 @@
 // Contrat :
 //
 
-void Clavier ( int canalLecS, int canalEcrS,int canalLecGB,int canalEcrGB,int canalLecPBP,int canalEcrPBP,int canalLecABP,int canalEcrABP );
+void Clavier ( int canalS[2],int canalGB[2],int canalPBP[2],int canalABP[2]  );
 // Mode d'emploi :
 //
 // Contrat :

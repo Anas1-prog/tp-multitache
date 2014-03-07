@@ -21,7 +21,7 @@
 //------------------------------------------------------------------ Types
 
 //---------------------------------------------------- Variables statiques
-
+static int canalLectureE;
 //------------------------------------------------------ Fonctions privées
 //static type nom ( liste de paramètres )
 // Mode d'emploi :
@@ -34,7 +34,7 @@
 //} //----- fin de nom
 
 
-static void entreeVoiture(int numSignal)
+void entreeVoiture(int numSignal)
 // Mode d'emploi :
 //
 // Contrat :
@@ -45,7 +45,7 @@ static void entreeVoiture(int numSignal)
 
 } //----- fin de entreeVoiture
 
-static void initialisation ( )
+void initialisation ( )
 //Mode d'emploi
 //
 //Algo
@@ -55,13 +55,13 @@ static void initialisation ( )
 	SetSignalHandler ( SIGCHLD , entreeVoiture ) ;
 }
 
-static void destruction ()
+static void destruction (int numSignal)
 //Mode d'emploi
 //Declenche par la reception du signal SIGUSR2
 //Algorithme
 //
 {
-	//Masquage du signal
+	//Masquage du signal SIGCHLD
 	SetSignalHandler(SIGCHLD, SIG_IGN);
 
 	//Kill tous les voituriers en cours
@@ -73,8 +73,13 @@ static void destruction ()
 //---------------------------------------------------- Fonctions publiques
 
 
-void Entree(int CanalL,int CanalE)
+void Entree(int canal[2], TypeBarriere barriere)
 {
+
+	int lecture=0;
+	char car;
+	canalLectureE=canal[0];
+	close(canal[1]);
 
 
 	//---------------------------------------------------Initialisation
@@ -82,20 +87,20 @@ void Entree(int CanalL,int CanalE)
 
 	//---------------------------------------------------Phase Moteur
 
-	//1. Verifier qu'il y a des places disponibles
-		//Si aucune place dispo, attendre
 
-
-
-	//TODO Modifier pour la fin
-	char car;
-	pid_t voiturier;
-	//TODO Modifier la condition pour fin si plus de personne qui écrit sur le canal
-	while( read( CanalL, &car, sizeof(char)))
+	for(;;)
 	{
-		voiturier = GarerVoiture(PROF_BLAISE_PASCAL);
+		lecture = read( canalLectureE, &car, sizeof( char ) );
 		
+		if ( lecture > 0 )
+		{
+			GarerVoiture(barriere);
+		}
+		else if (lecture == 0)
+		{
+			close(canalLectureE);
+			exit(0);
+		}
 	}
-	waitpid(voiturier, NULL, 0);
 }
 

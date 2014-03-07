@@ -35,9 +35,9 @@
 // Contrat :
 //
 
-void Sortie ( int canalL,int canalE);
-static void destruction(int numeroSignal);
-static void sortieVoiture(int numeroSignal);
+void Sortie ( int canal[2]);
+void destruction(int numeroSignal);
+void sortieVoiture(int numeroSignal);
 
 
 #endif /* SORTIE_H_ */

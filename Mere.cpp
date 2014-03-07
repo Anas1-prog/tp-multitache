@@ -20,16 +20,17 @@
 #include "Outils.h"
 #include "Heure.h"
 #include "Entree.h"
+#include "Sortie.h"
 ///////////////////////////////////////////////////////////////////  PRIVE
 //------------------------------------------------------------- Constantes
 
 //------------------------------------------------------------------ Types
 
 //---------------------------------------------------- Variables statiques
-static int CanalLectureS , CanalEcritureS;
-static int CanalLectureEGB , CanalEcritureEGB;
-static int CanalLecturePBP , CanalEcriturePBP;
-static int CanalLectureABP , CanalEcritureABP;
+static int CanalS[2];
+static int CanalGB[2];
+static int CanalPBP[2];
+static int CanalABP[2];
 //------------------------------------------------------ Fonctions privées
 //static type nom ( liste de paramètres )
 // Mode d'emploi :
@@ -48,34 +49,16 @@ void finHeure ( int noSignal )
 	}
 }
 
-static void initialisation ( )
+
+
+void SetSignalHandler ( int signalNumber, void (*handler) (int) )
 {
-
-	//Création du canal de communication Clavier->EntreeGastonBerger
-		int canalEGB[2];
-		pipe(canalEGB);
-		CanalLectureEGB = canalEGB[0];
-		CanalEcritureEGB = canalEGB[1];
-
-
-	//Création du canal de communication Clavier->EntreeProfBlaisePascal
-		int canalPBP[2];
-		pipe(canalPBP);
-		CanalLecturePBP = canalPBP[0];
-		CanalEcriturePBP = canalPBP[1];
-
-	//Création du canal de communication Clavier->EntreeProfBlaisePascal
-		int canalABP[2];
-		pipe(canalABP);
-		CanalLectureABP = canalABP[0];
-		CanalEcritureABP = canalABP[1];
-
-	//Création du canal de communication Clavier->Sortie
-		int canalS[2];
-		pipe(canalS);
-		CanalLectureS = canalS[0];
-		CanalEcritureS = canalS[1];
-}
+	struct sigaction action;
+	action.sa_handler = handler;
+	sigemptyset ( &action.sa_mask );
+	action.sa_flags = 0;
+	sigaction ( signalNumber, &action, NULL );
+} // Fin de SetSignalHandler
 
 
 //////////////////////////////////////////////////////////////////  PUBLIC
@@ -85,6 +68,7 @@ int main ( void )
 //
 {
 
+	system("ipcs > ipc_b.txt");
 	pid_t clavierPid;
 	pid_t heurePid;
 	pid_t entreeABPPid, entreePBPPid, entreeGBPid;
@@ -93,38 +77,45 @@ int main ( void )
 		//--------------------------------------------------Initialisation
 
 	InitialiserApplication( XTERM );
-	initialisation();//Appel de la fonction d'initialisation de la tache
+
+	//Création du canal de communication Clavier->EntreeGastonBerger
+	int canalGB[2];
+	pipe(canalGB);
+
+	//Création du canal de communication Clavier->EntreeProfBlaisePascal
+	int canalPBP[2];
+	pipe(canalPBP);
+
+	//Création du canal de communication Clavier->EntreeProfBlaisePascal
+	int canalABP[2];
+	pipe(canalABP);
+
+	//Création du canal de communication Clavier->Sortie
+	int canalS[2];
+	pipe(canalS);
 
 
 	if ( ( clavierPid = fork() ) == 0 )
 	{
 	//	close(canal[0]);//Fait dans Clavier
-		Clavier(CanalLectureS,CanalEcritureS,CanalLectureEGB,CanalEcritureEGB,CanalLecturePBP,CanalEcriturePBP,CanalLectureABP,CanalEcritureABP); //Création de la tache fils Clavier
+		Clavier(CanalS,CanalGB,CanalPBP,CanalABP); //Création de la tache fils Clavier
 //		sleep(10);
-	}
-	else if( ( sortiePid = fork() ) == 0 )
-	{
-		//close(canalEGB[1]);
-		Entree(CanalLectureS,CanalEcritureS);
-		//close(canalEGB[0]);
 	}
 	else if( ( entreeGBPid = fork() ) == 0 )
 	{
-		//close(canalEGB[1]);
-		Entree(CanalLectureEGB,CanalEcritureEGB);
-		//close(canalEGB[0]);
+		Entree(CanalGB,ENTREE_GASTON_BERGER);
 	}
 	else if( ( entreeABPPid = fork() ) == 0 )
 	{
-		//close(canalEGB[1]);
-		Entree(CanalLectureABP,CanalEcritureABP);
-		//close(canalEGB[0]);
+		Entree(CanalABP,AUTRE_BLAISE_PASCAL);
 	}
 	else if( ( entreePBPPid = fork() ) == 0 )
 	{
-		//close(canalEGB[1]);
-		Entree(CanalLecturePBP,CanalEcriturePBP);
-		//close(canalEGB[0]);
+		Entree(CanalPBP,PROF_BLAISE_PASCAL);
+	}
+	else if( ( sortiePid = fork() ) == 0 )
+	{
+		Sortie(CanalS);
 	}
 	else
 	{
@@ -146,17 +137,22 @@ int main ( void )
 
 
 			TerminerApplication( true );
+			system("ipcs > ipc_b.txt");
 			exit(0);
 		}
 }
 
 
 
-void SetSignalHandler ( int signalNumber, void (*handler) (int) )
-{
-	struct sigaction action;
-	action.sa_handler = handler;
-	sigemptyset ( &action.sa_mask );
-	action.sa_flags = 0;
-	sigaction ( signalNumber, &action, NULL );
-} // Fin de SetSignalHandler
+/*Etape de developpement :
+ *
+ * Entrees de voitures fonctionnelles : communication de la tache clavier avec l'entree
+ * concernée pour faire entrer une voiture dans le parking
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
