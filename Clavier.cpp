@@ -90,15 +90,12 @@ void Clavier ( int canals[2],int canalgb[2],int canalpbp[2],int canalabp[2] )
 	//----------------------------------------------Initialisation
 
 	//----------Ouverture des canaux nommé Clavier-Entree et Sortie
-	canalS[0] = canals[0];
 	canalS[1] = canals[1];
-	canalGB[0] = canalgb[0];
 	canalGB[1] = canalgb[1];
-	canalABP[0] = canalabp[0];
 	canalABP[1] = canalabp[1];
-	canalPBP[0] = canalpbp[0];
 	canalPBP[1] = canalpbp[1];
-	//		//Fermeture des cotés non utilisés
+
+	//Fermeture des cotés non utilisés
 	close(canalS[0]);
 	close(canalGB[0]);
 	close(canalABP[0]);

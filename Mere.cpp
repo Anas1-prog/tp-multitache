@@ -12,6 +12,8 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sys/shm.h>
+#include <sys/sem.h>
 #include <signal.h>
 #include <stdio.h>
 //------------------------------------------------------ Include personnel
@@ -23,6 +25,10 @@
 #include "Sortie.h"
 ///////////////////////////////////////////////////////////////////  PRIVE
 //------------------------------------------------------------- Constantes
+#define CHMOD_MPREAD 400
+#define CHMOD_MPWRITE 200
+#define CHMOD_SEMREAD 400
+#define CHMOD_SEMWRITE 200
 
 //------------------------------------------------------------------ Types
 
@@ -31,6 +37,7 @@ static int CanalS[2];
 static int CanalGB[2];
 static int CanalPBP[2];
 static int CanalABP[2];
+extern key_t const CLEF;
 //------------------------------------------------------ Fonctions privées
 //static type nom ( liste de paramètres )
 // Mode d'emploi :
@@ -51,16 +58,6 @@ void finHeure ( int noSignal )
 
 
 
-void SetSignalHandler ( int signalNumber, void (*handler) (int) )
-{
-	struct sigaction action;
-	action.sa_handler = handler;
-	sigemptyset ( &action.sa_mask );
-	action.sa_flags = 0;
-	sigaction ( signalNumber, &action, NULL );
-} // Fin de SetSignalHandler
-
-
 //////////////////////////////////////////////////////////////////  PUBLIC
 //---------------------------------------------------- Fonctions publiques
 int main ( int argc, const char * argv[] )
@@ -77,6 +74,12 @@ int main ( int argc, const char * argv[] )
 		//--------------------------------------------------Initialisation
 
 	InitialiserApplication( XTERM );
+
+	//Mise en place de la mémoire partagée
+	int memoirePartagee = shmget ( CLEF, sizeof(EtatParking), (IPC_CREAT|IPC_EXCL|CHMOD_MPREAD|CHMOD_MPWRITE) );
+
+	//Mise en place du Mutex
+	int semId = semget ( CLEF, 1, (IPC_CREAT|IPC_EXCL|CHMOD_SEMREAD|CHMOD_SEMWRITE) );
 
 	//Création du canal de communication Clavier->EntreeGastonBerger
 
@@ -120,6 +123,9 @@ int main ( int argc, const char * argv[] )
 
 			//---------------------------------------------Destruction
 			SetSignalHandler ( SIGUSR2, finHeure);
+
+
+
 			waitpid ( clavierPid , NULL , 0 ); // Attente de la Fin de la tache Clavier
 			kill ( heurePid , SIGUSR2 );
 			waitpid ( heurePid , NULL , 0 );
@@ -132,8 +138,21 @@ int main ( int argc, const char * argv[] )
 			kill ( entreePBPPid , SIGUSR2 );
 			waitpid( entreePBPPid , NULL , 0 );
 
-				//Supprimer les canaux de communication
-
+			//Libere la memoire partagee
+			int memoirePartagee = shmget( CLEF, sizeof(EtatParking),IPC_EXCL);
+			shmctl( memoirePartagee,IPC_RMID,0);
+			//Libere la semaphore d'exclusion mutuelle
+			semId = semget ( CLEF,1,IPC_EXCL);
+			semctl(semId,0,IPC_RMID,0);
+			//Libere les canaux de communication
+			close(CanalS[0]);
+			close(CanalS[1]);
+			close(CanalGB[0]);
+			close(CanalGB[1]);
+			close(CanalABP[0]);
+			close(CanalABP[1]);
+			close(CanalPBP[0]);
+			close(CanalPBP[1]);
 
 			TerminerApplication( true );
 			system("ipcs > ipc_s.txt");
@@ -151,6 +170,10 @@ int main ( int argc, const char * argv[] )
  * - Entrees de voitures fonctionnelles : communication de la tache clavier avec l'entree
  * concernée pour faire entrer une voiture dans le parking
  *
+ * - Sortie des vehicules fonctionnelle
+ *
+ * -Memoire partagéé mise en place
+ * -Semaphore d'exclusion mutuelle mise en place
  *
  *
  *

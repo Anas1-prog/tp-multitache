@@ -10,24 +10,14 @@
 
 /////////////////////////////////////////////////////////////////  INCLUDE
 //-------------------------------------------------------- Include système
-//#include <iostream>
-//#include <map>
-//#include <unistd.h>
-//#include <sys/types.h>
-//#include <sys/wait.h>
-//#include <stdlib.h>
-//#include <signal.h>
-//#include <sys/types.h>
-//#include <sys/wait.h>
 
 //------------------------------------------------------ Include personnel
 #include "Entree.h"
-//#include "Mere.h"
-//#include "Outils.h"
 
 ///////////////////////////////////////////////////////////////////  PRIVE
 //------------------------------------------------------------- Constantes
-
+//Temps pendant lequel il faut que la tache dorme après avoir laissé entrer une voiture
+#define ENTREE_DELAIS 1
 //------------------------------------------------------------------ Types
 
 //---------------------------------------------------- Variables statiques
@@ -62,8 +52,8 @@ void initialisation ( )
 //Algo
 //
 {
-	SetSignalHandler ( SIGUSR2 , destructionEntree ) ;
-	SetSignalHandler ( SIGCHLD , entreeVoiture ) ;
+	Handler ( SIGUSR2 , destructionEntree ) ;
+	Handler ( SIGCHLD , entreeVoiture ) ;
 }
 
 void destructionEntree (int numSignal)
@@ -73,8 +63,13 @@ void destructionEntree (int numSignal)
 //
 {
 	//Masquage du signal SIGCHLD
-	SetSignalHandler(SIGCHLD, SIG_IGN);
-	//TODO Kill tous les voituriers en cours
+	Handler(SIGCHLD, SIG_IGN);
+
+	for ( map<int, pid_t>::iterator iter = voiturierEntree.begin();iter != voiturierEntree.end(); ++iter )
+	{
+		kill ( iter->first, SIGUSR2 );
+		waitpid( iter->first, NULL, 0 );
+	}
 	exit(0);
 }
 
@@ -104,6 +99,7 @@ void Entree(int canal[2], TypeBarriere barriere)
 		if ( lecture > 0 )
 		{
 			GarerVoiture(barriere);
+			sleep(ENTREE_DELAIS);
 		}
 		else if (lecture == 0)
 		{

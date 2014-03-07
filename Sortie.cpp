@@ -23,7 +23,7 @@
 ///////////////////////////////////////////////////////////////////  PRIVE
 //------------------------------------------------------------- Constantes
 static int canalLectureS;
-static map<unsigned int, pid_t> voiturierSortie;
+static map<pid_t, Voiture> voiturierSortie;
 //------------------------------------------------------------------ Types
 
 //---------------------------------------------------- Variables statiques
@@ -53,8 +53,8 @@ static void initialisation ( )
 //Algo
 //
 {
-	SetSignalHandler ( SIGUSR2 , destructionSortie ) ;
-	SetSignalHandler ( SIGCHLD , sortieVoiture ) ;
+	Handler ( SIGUSR2 , destructionSortie ) ;
+	Handler ( SIGCHLD , sortieVoiture ) ;
 
 }
 
@@ -62,8 +62,16 @@ void destructionSortie( int numeroSignal)
 //Mode d'emploi
 //Appelé lorsqu'on veut détruire la tache sortie
 //Algo
-//TODO Tue toutes les taches filles en cours
 {
+	//Masquage du signal SIGCHLD
+	Handler(SIGCHLD, SIG_IGN);
+
+	for ( map<pid_t, Voiture>::iterator it = voiturierSortie.begin();
+			it != voiturierSortie.end(); ++it )
+	{
+		kill ( it->first, SIGUSR2 );
+		waitpid( it->first, NULL, 0 );
+	}
 	exit(0);
 }
 
