@@ -18,8 +18,7 @@
 #include <map>
 //------------------------------------------------------ Include personnel
 #include "Sortie.h"
-#include "Mere.h"
-#include "Util.h"
+
 
 ///////////////////////////////////////////////////////////////////  PRIVE
 //------------------------------------------------------------- Constantes
@@ -48,7 +47,7 @@ static map<int, pid_t> voiturierSortie;
 		//qui signale à l'entrée concerné qu'elle peut faire entrer une nouvelle voiture
 //static void choixEntreePrioritaire()
 
-static void initialisation ( )
+void initialisationSortie ( )
 //Mode d'emploi
 //
 //Algo
@@ -95,7 +94,7 @@ void Sortie ( int canal[2])
 	int lecture;
 	int numPlace;
 	close(canal[1]);//Fermeture du canal de lecture
-	initialisation();
+	initialisationSortie();
 
 	//------------------------------------------------Phase moteur
 	for (;;)

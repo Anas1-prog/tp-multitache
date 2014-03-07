@@ -48,7 +48,7 @@
 //
 // Contrat :
 //
-void initialisation();
+void initialisationEntree();
 // Mode d'emploi :
 //
 // Contrat :

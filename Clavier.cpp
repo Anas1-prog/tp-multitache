@@ -11,7 +11,7 @@
 //-------------------------------------------------------- Include système
 #include <stdlib.h>
 #include <fcntl.h>
-#include <cstdio>
+//#include <cstdio>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -20,10 +20,7 @@
 
 //------------------------------------------------------ Include personnel
 #include "Clavier.h"
-#include "Menu.h"
-#include "Mere.h"
-#include "Outils.h"
-#include "Util.h"
+
 
 ///////////////////////////////////////////////////////////////////  PRIVE
 //------------------------------------------------------------- Constantes

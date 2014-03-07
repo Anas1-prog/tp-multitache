@@ -18,11 +18,9 @@
 
 /////////////////////////////////////////////////////////////////  INCLUDE
 //--------------------------------------------------- Interfaces utilisées
-#include <unistd.h>
 #include "Outils.h"
-#include <sys/types.h>
-#include <sys/wait.h>
-
+#include "Mere.h"
+#include "Util.h"
 //------------------------------------------------------------- Constantes
 
 //------------------------------------------------------------------ Types
@@ -38,6 +36,7 @@
 void Sortie ( int canal[2]);
 void destructionSortie(int numeroSignal);
 void sortieVoiture(int numeroSignal);
+void initialisationSortie();
 
 
 #endif /* SORTIE_H_ */

@@ -18,19 +18,14 @@
 #include <stdio.h>
 //------------------------------------------------------ Include personnel
 #include "Mere.h"
-#include "Clavier.h"
-#include "Outils.h"
-#include "Heure.h"
-#include "Entree.h"
-#include "Sortie.h"
-#include "Util.h"
+
 ///////////////////////////////////////////////////////////////////  PRIVE
 //------------------------------------------------------------- Constantes
 #define CHMOD_MPREAD 400
 #define CHMOD_MPWRITE 200
 #define CHMOD_SEMREAD 400
 #define CHMOD_SEMWRITE 200
-
+extern key_t CLEF;
 //------------------------------------------------------------------ Types
 
 //---------------------------------------------------- Variables statiques
@@ -38,7 +33,7 @@ static int CanalS[2];
 static int CanalGB[2];
 static int CanalPBP[2];
 static int CanalABP[2];
-extern key_t const CLEF;
+
 //------------------------------------------------------ Fonctions privées
 //static type nom ( liste de paramètres )
 // Mode d'emploi :

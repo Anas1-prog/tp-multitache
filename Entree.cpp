@@ -13,8 +13,7 @@
 
 //------------------------------------------------------ Include personnel
 #include "Entree.h"
-#include "Util.h"
-#include "Mere.h"
+
 
 ///////////////////////////////////////////////////////////////////  PRIVE
 //------------------------------------------------------------- Constantes
@@ -49,7 +48,7 @@ void entreeVoiture(int numSignal)
 
 } //----- fin de entreeVoiture
 
-void initialisation ( )
+void initialisationEntree ( )
 //Mode d'emploi
 //
 //Algo
@@ -107,7 +106,7 @@ void Entree(int canal[2], TypeBarriere barriere)
 
 
 	//---------------------------------------------------Initialisation
-	initialisation();
+	initialisationEntree();
 
 	//---------------------------------------------------Phase Moteur
 

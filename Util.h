@@ -12,6 +12,7 @@
 #include <sys/wait.h>
 #include <sys/sem.h>
 #include <sys/shm.h>
+#include "Mere.h"
 #include "Outils.h"
 //------------------------------------------------------Variable Statiques
 //Compteur de matricule entre 0 et 999
