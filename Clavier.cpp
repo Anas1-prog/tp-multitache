@@ -93,15 +93,16 @@ void Clavier ( int canals[2],int canalgb[2],int canalpbp[2],int canalabp[2] )
 	canalS[0] = canals[0];
 	canalS[1] = canals[1];
 	canalGB[0] = canalgb[0];
+	canalGB[1] = canalgb[1];
 	canalABP[0] = canalabp[0];
+	canalABP[1] = canalabp[1];
 	canalPBP[0] = canalpbp[0];
 	canalPBP[1] = canalpbp[1];
-	printf("canalPBP[0] = %d , canalPBP[1] = %d", canalPBP[0],canalPBP[1]);
 	//		//Fermeture des cotés non utilisés
-//	close(canalS[0]); Provoque un bug lors de l'execution du programme
-//	close(canalGB[0]);
-//	close(canalABP[0]);
-//	close(canalPBP[0]);
+	close(canalS[0]);
+	close(canalGB[0]);
+	close(canalABP[0]);
+	close(canalPBP[0]);
 
 	//------------------------------------------------Phase Moteur
 	while(true)
@@ -118,10 +119,10 @@ void Commande ( char code, unsigned int valeur )
 	{
 	case 'Q' :
 		//Fermeture des canaux de communication avant de quitter l'application
-			close(canalS[0]);
-			close(canalGB[0]);
-			close(canalABP[0]);
-			close(canalPBP[0]);
+			close(canalS[1]);
+			close(canalGB[1]);
+			close(canalABP[1]);
+			close(canalPBP[1]);
 		exit(0);
 		break;
 	case 'P' :

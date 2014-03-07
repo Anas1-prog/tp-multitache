@@ -27,7 +27,10 @@
 //------------------------------------------------------------------ Types
 
 //---------------------------------------------------- Variables statiques
-
+static int CanalS[2];
+static int CanalGB[2];
+static int CanalPBP[2];
+static int CanalABP[2];
 //------------------------------------------------------ Fonctions privées
 //static type nom ( liste de paramètres )
 // Mode d'emploi :
@@ -76,19 +79,16 @@ int main ( int argc, const char * argv[] )
 	InitialiserApplication( XTERM );
 
 	//Création du canal de communication Clavier->EntreeGastonBerger
-	int canalGB[2];
-	pipe(canalGB);
+
+	pipe(CanalGB);
 	//Création du canal de communication Clavier->EntreeProfBlaisePascal
-	int canalPBP[2];
-	pipe(canalPBP);
+	pipe(CanalPBP);
 
 	//Création du canal de communication Clavier->EntreeProfBlaisePascal
-	int canalABP[2];
-	pipe(canalABP);
+	pipe(CanalABP);
 
 	//Création du canal de communication Clavier->Sortie
-	int canalS[2];
-	pipe(canalS);
+	pipe(CanalS);
 
 
 	if ( ( clavierPid = fork() ) == 0 )
