@@ -25,7 +25,6 @@
 #define CHMOD_MPWRITE 200
 #define CHMOD_SEMREAD 400
 #define CHMOD_SEMWRITE 200
-//Constantes utiles au CLEF = ftok
 #define CHEMIN "parking"
 #define CLEFS 3
 const key_t CLEF = ftok(CHEMIN,CLEFS);
@@ -39,6 +38,7 @@ static int CanalS[2];
 static int CanalGB[2];
 static int CanalPBP[2];
 static int CanalABP[2];
+extern const int CLEF = ftok ( CHEMIN, CLEFS );
 
 //------------------------------------------------------ Fonctions privées
 //static type nom ( liste de paramètres )
@@ -66,7 +66,7 @@ int main ( int argc, const char * argv[] )
 // Algorithme :
 //
 {
-	static const int CLEF = ftok ( CHEMIN, CLEFS );
+	
 
 	system("ipcs > ipc_e.txt");
 	pid_t clavierPid;
