@@ -22,7 +22,7 @@ static int compteurMatricule;
 #define NB_PLACES 8
 #define NB_ENTREES 3
 
-
+extern const int CLEF;
 //------------------------------------------------------------------ Types
 
 struct Voiture {

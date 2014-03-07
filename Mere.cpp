@@ -27,7 +27,7 @@
 #define CHMOD_SEMWRITE 200
 #define CHEMIN "parking"
 #define CLEFS 3
-const key_t CLEF = ftok(CHEMIN,CLEFS);
+
 
 
 
@@ -38,7 +38,7 @@ static int CanalS[2];
 static int CanalGB[2];
 static int CanalPBP[2];
 static int CanalABP[2];
-extern const int CLEF = ftok ( CHEMIN, CLEFS );
+int const CLEF = ftok ( CHEMIN, CLEFS );
 
 //------------------------------------------------------ Fonctions privées
 //static type nom ( liste de paramètres )
@@ -67,7 +67,7 @@ int main ( int argc, const char * argv[] )
 //
 {
 	
-
+	printf("CLEF = %d", CLEF);
 	system("ipcs > ipc_e.txt");
 	pid_t clavierPid;
 	pid_t heurePid;
@@ -79,7 +79,7 @@ int main ( int argc, const char * argv[] )
 	InitialiserApplication( XTERM );
 
 	//Mise en place de la mémoire partagée
-	int memoirePartagee = shmget ( CLEF, sizeof(EtatParking), (IPC_CREAT|IPC_EXCL|CHMOD_MPREAD|CHMOD_MPWRITE) );
+	shmget ( CLEF, sizeof(EtatParking), (IPC_CREAT|IPC_EXCL|CHMOD_MPREAD|CHMOD_MPWRITE) );
 
 	//Mise en place du Mutex
 	int semId = semget ( CLEF, 1, (IPC_CREAT|IPC_EXCL|CHMOD_SEMREAD|CHMOD_SEMWRITE) );
@@ -99,9 +99,7 @@ int main ( int argc, const char * argv[] )
 
 	if ( ( clavierPid = fork() ) == 0 )
 	{
-	//	close(canal[0]);//Fait dans Clavier
 		Clavier(CanalS,CanalGB,CanalPBP,CanalABP); //Création de la tache fille Clavier
-//		sleep(10);
 	}
 	else if( ( entreeGBPid = fork() ) == 0 )
 	{

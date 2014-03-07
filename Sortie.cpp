@@ -18,13 +18,14 @@
 #include <map>
 //------------------------------------------------------ Include personnel
 #include "Sortie.h"
+#include "Util.h"
 
 
 ///////////////////////////////////////////////////////////////////  PRIVE
 //------------------------------------------------------------- Constantes
 static int canalLectureS;
 static map<int, pid_t> voiturierSortie;
-extern const key_t CLEF;
+extern key_t const CLEF;
 //------------------------------------------------------------------ Types
 
 //---------------------------------------------------- Variables statiques
