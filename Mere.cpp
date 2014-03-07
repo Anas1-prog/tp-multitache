@@ -175,6 +175,8 @@ int main ( int argc, const char * argv[] )
  * -Memoire partagéé mise en place
  * -Semaphore d'exclusion mutuelle mise en place
  *
+ * -Creation d'une fonction pour agir sur la semaphore : semaphore(int clef, short semOp)
+ *
  *
  *
  *
