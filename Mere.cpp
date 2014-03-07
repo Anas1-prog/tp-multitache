@@ -25,6 +25,12 @@
 #define CHMOD_MPWRITE 200
 #define CHMOD_SEMREAD 400
 #define CHMOD_SEMWRITE 200
+//Constantes utiles au CLEF = ftok
+#define CHEMIN "parking"
+#define CLEFS 3
+const key_t CLEF = ftok(CHEMIN,CLEFS);
+
+
 
 //------------------------------------------------------------------ Types
 
@@ -60,6 +66,7 @@ int main ( int argc, const char * argv[] )
 // Algorithme :
 //
 {
+	static const int CLEF = ftok ( CHEMIN, CLEFS );
 
 	system("ipcs > ipc_e.txt");
 	pid_t clavierPid;

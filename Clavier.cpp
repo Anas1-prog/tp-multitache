@@ -11,7 +11,6 @@
 //-------------------------------------------------------- Include système
 #include <stdlib.h>
 #include <fcntl.h>
-//#include <cstdio>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -34,6 +33,7 @@ static int canalABP[2];
 static int canalPBP[2];
 static int canalGB[2];
 static int canalCommun;
+extern const int CLEF;
 
 //------------------------------------------------------ Fonctions privées
 static TypeBarriere getTypeBarriere(int numeroBarriere,TypeUsager usager)

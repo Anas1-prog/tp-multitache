@@ -24,6 +24,7 @@
 //------------------------------------------------------------- Constantes
 static int canalLectureS;
 static map<int, pid_t> voiturierSortie;
+extern const key_t CLEF;
 //------------------------------------------------------------------ Types
 
 //---------------------------------------------------- Variables statiques
@@ -91,28 +92,31 @@ void sortieVoiture(int numeroSignal)
 		if (WIFEXITED ( crdu ))
 		{
 			int numPlace = WEXITSTATUS ( crdu );
-			int numPlace = voiturierSortie.find(pid);
+//			int numPlace = voiturierSortie.find(pid);
 			//Suppression de la liste des voituriers qui travaillent
 			voiturierSortie.erase(numPlace-1);
 
 
-	//Prise du Mutex
-	semaphore(CLEF,-1);
-	//Acces memoire partagée
-	int memoirePartagee = shmget ( CLEF , sizeof(EtatParking), IPC_EXCL);
-	EtatParking * etat = (EtatParking *)shmat(memoirePartagee, NULL, 0);
+			//Prise du Mutex
+			semaphore(CLEF,-1);
+			//Acces memoire partagée
+			int memoirePartagee = shmget ( CLEF , sizeof(EtatParking), IPC_EXCL);
+			EtatParking * etat = (EtatParking *)shmat(memoirePartagee, NULL, 0);
 
-	//Retrait de la voiture qui vient de sortir dans la memoire et decrementation nb place
+			//Retrait de la voiture qui vient de sortir dans la memoire et decrementation nb place
 
-	etat->placeLibres++;
+			etat->placeLibres++;
 
-	//Libere la memoire
-	shmdt(etat);
-	//Libere le Mutex
-	semaphore(CLEF,1);
+			//Libere la memoire
+			shmdt(etat);
+			//Libere le Mutex
+			semaphore(CLEF,1);
 
 
-	//Maj memoire partagée NbPlace-- et suppression de la PlacedeParking occupée
+			//Maj memoire partagée NbPlace-- et suppression de la PlacedeParking occupée
+
+		}
+	}
 }
 //////////////////////////////////////////////////////////////////  PUBLIC
 //---------------------------------------------------- Fonctions publiques

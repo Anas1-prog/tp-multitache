@@ -24,7 +24,8 @@
 //---------------------------------------------------- Variables statiques
 static int canalLectureE;
 static int autorisationPassage;
-static map<unsigned int, pid_t> voiturierEntree;
+static map<pid_t,Voiture> voiturierEntree;
+extern const key_t CLEF;
 //------------------------------------------------------ Fonctions privées
 //static type nom ( liste de paramètres )
 // Mode d'emploi :
@@ -102,7 +103,7 @@ void destructionEntree (int numSignal)
 	//Masquage du signal SIGCHLD
 	Handler(SIGCHLD, SIG_IGN);
 
-	for ( map<unsigned int, pid_t>::iterator iter = voiturierEntree.begin();iter != voiturierEntree.end(); ++iter )
+	for ( map< pid_t, Voiture>::iterator iter = voiturierEntree.begin();iter != voiturierEntree.end(); ++iter )
 	{
 		kill ( iter->first, SIGUSR2 );
 		waitpid( iter->first, NULL, 0 );
@@ -124,8 +125,14 @@ int verificationPlacesLibres()
 	//Acces memoire partagée
 	int memoirePartagee = shmget ( CLEF , sizeof(EtatParking), IPC_EXCL);
 	EtatParking * etat = (EtatParking *)shmat(memoirePartagee, NULL, 0);
-	int retour = etat->placeLibres;
+	int placeLibre = etat->placeLibres;
 
+	//Libere la memoire
+	shmdt(etat);
+	//Libere le Mutex
+	semaphore(CLEF,1);
+
+	return placeLibre;
 }
 
 //////////////////////////////////////////////////////////////////  PUBLIC

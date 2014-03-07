@@ -17,11 +17,11 @@
 //------------------------------------------------------Variable Statiques
 //Compteur de matricule entre 0 et 999
 static int compteurMatricule;
-
 //------------------------------------------------------------- Constantes
 //Places disponibles dans le parking
 #define NB_PLACES 8
 #define NB_ENTREES 3
+
 
 //------------------------------------------------------------------ Types
 
