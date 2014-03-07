@@ -19,11 +19,12 @@
 //------------------------------------------------------ Include personnel
 #include "Sortie.h"
 #include "Mere.h"
+#include "Util.h"
 
 ///////////////////////////////////////////////////////////////////  PRIVE
 //------------------------------------------------------------- Constantes
 static int canalLectureS;
-static map<pid_t, Voiture> voiturierSortie;
+static map<int, pid_t> voiturierSortie;
 //------------------------------------------------------------------ Types
 
 //---------------------------------------------------- Variables statiques
@@ -66,7 +67,7 @@ void destructionSortie( int numeroSignal)
 	//Masquage du signal SIGCHLD
 	Handler(SIGCHLD, SIG_IGN);
 
-	for ( map<pid_t, Voiture>::iterator it = voiturierSortie.begin();
+	for ( map<int, pid_t>::iterator it = voiturierSortie.begin();
 			it != voiturierSortie.end(); ++it )
 	{
 		kill ( it->first, SIGUSR2 );

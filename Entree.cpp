@@ -14,6 +14,7 @@
 //------------------------------------------------------ Include personnel
 #include "Entree.h"
 #include "Util.h"
+#include "Mere.h"
 
 ///////////////////////////////////////////////////////////////////  PRIVE
 //------------------------------------------------------------- Constantes
@@ -67,7 +68,7 @@ void destructionEntree (int numSignal)
 	//Masquage du signal SIGCHLD
 	Handler(SIGCHLD, SIG_IGN);
 
-	for ( map<int, pid_t>::iterator iter = voiturierEntree.begin();iter != voiturierEntree.end(); ++iter )
+	for ( map<unsigned int, pid_t>::iterator iter = voiturierEntree.begin();iter != voiturierEntree.end(); ++iter )
 	{
 		kill ( iter->first, SIGUSR2 );
 		waitpid( iter->first, NULL, 0 );
@@ -75,7 +76,7 @@ void destructionEntree (int numSignal)
 	exit(0);
 }
 
-void passageVoiture()
+void passageVoiture(int numSignal)
 {
 	autorisationPassage = true;
 }
@@ -88,8 +89,8 @@ int verificationPlacesLibres()
 
 	//Acces memoire partagée
 	int memoirePartagee = shmget ( CLEF , sizeof(EtatParking), IPC_EXCL);
-	EtatParking etat = shmat(memoirePartagee, NULL, 0);
-	return etat.placeLibres;
+	EtatParking * etat = (EtatParking *)shmat(memoirePartagee, NULL, 0);
+	return etat->placeLibres;
 }
 
 //////////////////////////////////////////////////////////////////  PUBLIC

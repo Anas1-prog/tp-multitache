@@ -19,7 +19,7 @@
 //--------------------------------------------------- Interfaces utilisées
 
 //------------------------------------------------------------- Constantes
-
+extern key_t const CLEF;
 //------------------------------------------------------------------ Types
 
 //////////////////////////////////////////////////////////////////  PUBLIC
@@ -35,11 +35,5 @@ void finHeure (int noSignal);
 // Contrat :
 //
 
-void SetSignalHandler(int signalNumber, void (*handler) (int) );
-// Mode d'emploi :
-//Prend en parametre le signal et lui attribue une fonction que la tache executera
-//à la reception de ce signal
-// Contrat :
-//
 
 #endif // MERE_H_

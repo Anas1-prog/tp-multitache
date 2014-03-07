@@ -29,6 +29,11 @@ struct Voiture {
 	TypeUsager usager;
 	time_t heureArrivee;
 
+	Voiture(): usager(AUCUN),heureArrivee(0)
+	{
+		//Vide
+	}
+
 	Voiture(TypeUsager u): usager(u),heureArrivee(0)
 	{
 		matricule = compteurMatricule;
@@ -48,12 +53,13 @@ struct Voiture {
 struct RequeteVoiture {
 	TypeBarriere barriere;
 	Voiture voiture;
+	pid_t pid; //Pid du processus Entree
 
-//	//----------------------------------------------Constructeur par defaut
-//	RequeteVoiture():barriere(AUCUNE),heure(0),voiture(Voiture())
-//	{
-//		//Vide
-//	}
+	//----------------------------------------------Constructeur par defaut
+	RequeteVoiture():barriere(AUCUNE),voiture(Voiture())
+	{
+		//Vide
+	}
 
 	//---------------------------------------------------------Constructeur
 	RequeteVoiture(TypeBarriere b, Voiture v):barriere(b),voiture(v)
@@ -78,5 +84,5 @@ struct EtatParking
 //////////////////////////////////////////////////////////////////  PUBLIC
 //---------------------------------------------------- Fonctions publiques
 
-static void Handler( int numSignal, void (*handler) (int) );
-static void semaphore(int clef, short semOp);
+void Handler( int numSignal, void (*handler) (int) );
+void semaphore(int clef, short semOp);

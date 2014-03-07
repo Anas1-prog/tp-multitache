@@ -13,6 +13,8 @@
 
 //------------------------------------------------------ Include personnel
 #include "Util.h"
+#include "Mere.h"
+#include "Outils.h"
 
 ///////////////////////////////////////////////////////////////////  PRIVE
 //------------------------------------------------------------- Constantes
@@ -35,7 +37,7 @@
 
 //////////////////////////////////////////////////////////////////  PUBLIC
 //---------------------------------------------------- Fonctions publiques
-static void Handler ( int numSignal, void (*handler) (int) )
+void Handler ( int numSignal, void (*handler) (int) )
 // Mode d'emploi :
 //
 // Contrat :
@@ -51,7 +53,7 @@ static void Handler ( int numSignal, void (*handler) (int) )
 } // Fin de Handler
 
 
-static void semaphore(int clef,short semOp)
+void semaphore(int clef,short semOp)
 // Mode d'emploi :
 // <clef> : clef de la semaphore
 //<semOp> : -1 pour prendre le controle de la semaphore
@@ -62,7 +64,10 @@ static void semaphore(int clef,short semOp)
 //
 {
 	int semId = semget ( CLEF , 1 , IPC_EXCL );
-	sembuf listeOp =sembuf(0,semOp,IPC_NOWAIT);//Pour appel systeme non blocant (IPC_NOWAIT)
+	sembuf listeOp =sembuf();
+	listeOp.sem_num=0;
+	listeOp.sem_op=semOp;
+	listeOp.sem_flg=IPC_NOWAIT;//Pour appel systeme non blocant (IPC_NOWAIT)
 	int testSem=-1;
 	while(testSem==-1)
 	{

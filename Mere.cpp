@@ -23,6 +23,7 @@
 #include "Heure.h"
 #include "Entree.h"
 #include "Sortie.h"
+#include "Util.h"
 ///////////////////////////////////////////////////////////////////  PRIVE
 //------------------------------------------------------------- Constantes
 #define CHMOD_MPREAD 400
@@ -122,7 +123,7 @@ int main ( int argc, const char * argv[] )
 			heurePid = ActiverHeure();	//Création de la tache fils Heure
 
 			//---------------------------------------------Destruction
-			SetSignalHandler ( SIGUSR2, finHeure);
+			Handler ( SIGUSR2, finHeure);
 
 
 
