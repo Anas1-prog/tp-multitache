@@ -78,10 +78,19 @@ int main ( int argc, const char * argv[] )
 	InitialiserApplication( XTERM );
 
 	//Mise en place de la mémoire partagée
-	shmget ( CLEF, sizeof(EtatParking), (IPC_CREAT|IPC_EXCL|CHMOD_MPREAD|CHMOD_MPWRITE) );
+	int memoirePartagee = shmget ( CLEF, sizeof(EtatParking), (IPC_CREAT|IPC_EXCL|CHMOD_MPREAD|CHMOD_MPWRITE) );
+
 
 	//Mise en place du Mutex
 	int semId = semget ( CLEF, 1, (IPC_CREAT|IPC_EXCL|CHMOD_SEMREAD|CHMOD_SEMWRITE) );
+
+	//récupere la mémoire partagée
+	EtatParking  * etat = (EtatParking *)shmat( memoirePartagee, NULL,0);
+	etat->placeLibres=NB_PLACES;
+	shmdt ( etat );//Libère la mémoire
+
+	//Libere le mutex
+	semaphore(CLEF,1);
 
 	//Création du canal de communication Clavier->EntreeGastonBerger
 	pipe(CanalGB);
@@ -135,10 +144,10 @@ int main ( int argc, const char * argv[] )
 			kill ( entreePBPPid , SIGUSR2 );
 			waitpid( entreePBPPid , NULL , 0 );
 
-			//Libere la memoire partagee
+			//Suppression de la memoire partagee
 			int memoirePartagee = shmget( CLEF, sizeof(EtatParking),IPC_EXCL);
 			shmctl( memoirePartagee,IPC_RMID,0);
-			//Libere la semaphore d'exclusion mutuelle
+			//Suppression de la semaphore d'exclusion mutuelle
 			semId = semget ( CLEF,1,IPC_EXCL);
 			semctl(semId,0,IPC_RMID,0);
 			//Libere les canaux de communication
@@ -170,6 +179,7 @@ int main ( int argc, const char * argv[] )
  *
  * -Memoire partagéé mise en place
  * -Semaphore d'exclusion mutuelle mise en place
+ * -Initialisation de la mémoire à NB_PLACES libres
  *
  * -Creation d'une fonction pour agir sur la semaphore : semaphore(int clef, short semOp)
  *
