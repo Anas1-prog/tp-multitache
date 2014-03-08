@@ -179,7 +179,6 @@ void Entree(int canal[2], TypeBarriere barriere)
 
 	for(;;)
 	{
-		
 		lecture = read( canalLectureE, &message, sizeof( RequeteVoiture ) );
 		
 		if ( lecture > 0 )
