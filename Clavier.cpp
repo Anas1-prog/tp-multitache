@@ -35,6 +35,7 @@ static int canalGB[2];
 static int canalCommun;
 
 //------------------------------------------------------ Fonctions privées
+
 static TypeBarriere getTypeBarriere(int numeroBarriere,TypeUsager usager)
 //Mode d'emploi
 //Retourne le TypeBarriere correspondant aux parametres entrés au clavier
@@ -112,7 +113,7 @@ void Commande ( char code, unsigned int valeur )
 	switch( code )
 	{
 	case 'Q' :
-		//Fermeture des canaux de communication avant de quitter l'application
+		//Fermeture des canaux de communication avant la fermeture de la tache
 			close(canalS[1]);
 			close(canalGB[1]);
 			close(canalABP[1]);

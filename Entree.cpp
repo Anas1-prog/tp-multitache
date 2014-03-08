@@ -160,10 +160,8 @@ void Entree(int canal[2], TypeBarriere barriere)
 		
 		if ( lecture > 0 )
 		{
-
 			//Verification si il y a des places de libres dans le parking :
 			if (verificationPlacesLibres()<0)
-
 			{
 				autorisationPassage = false;
 				//Attente de l'envoi d'un signal par la sortie
@@ -175,11 +173,9 @@ void Entree(int canal[2], TypeBarriere barriere)
 				Handler(SIGUSR1,SIG_IGN);//Masquage du signal
 			}
 
-
-		pid_t voiturier = GarerVoiture(barriere);
-		voiturierEntree[voiturier]=message.voiture;
-		sleep(ENTREE_DELAIS);
-
+			pid_t voiturier = GarerVoiture(barriere);
+			voiturierEntree[voiturier]=message.voiture;
+			sleep(ENTREE_DELAIS);
 
 		}
 		else if (lecture == 0)

@@ -26,7 +26,7 @@
 #define CHMOD_MPWRITE 200
 #define CHMOD_SEMREAD 400
 #define CHMOD_SEMWRITE 200
-#define CHEMIN "Parking"
+#define CHEMIN "Semaphore"
 #define CLEFS 3
 
 
@@ -131,6 +131,8 @@ int main ( int argc, const char * argv[] )
 			Handler ( SIGUSR2, finHeure);
 
 
+			
+
 
 			waitpid ( clavierPid , NULL , 0 ); // Attente de la Fin de la tache Clavier
 			kill ( heurePid , SIGUSR2 );
@@ -159,6 +161,7 @@ int main ( int argc, const char * argv[] )
 			close(CanalABP[1]);
 			close(CanalPBP[0]);
 			close(CanalPBP[1]);
+			
 
 			TerminerApplication( true );
 			exit(0);
@@ -189,3 +192,5 @@ int main ( int argc, const char * argv[] )
  *
  *
  */
+ 
+ //TODO Mettre à jour l'affichage
