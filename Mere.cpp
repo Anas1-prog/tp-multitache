@@ -130,10 +130,6 @@ int main ( int argc, const char * argv[] )
 			//---------------------------------------------Destruction
 			Handler ( SIGUSR2, finHeure);
 
-
-			
-
-
 			waitpid ( clavierPid , NULL , 0 ); // Attente de la Fin de la tache Clavier
 			kill ( heurePid , SIGUSR2 );
 			waitpid ( heurePid , NULL , 0 );

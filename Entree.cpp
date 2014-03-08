@@ -13,6 +13,7 @@
 
 //------------------------------------------------------ Include personnel
 #include "Entree.h"
+#include <sstream>
 
 
 ///////////////////////////////////////////////////////////////////  PRIVE
@@ -54,11 +55,23 @@ void entreeVoiture(int numSignal)
 	{
 		if (WIFEXITED ( crdu ))
 		{
+			/*stringstream a;
+			a << "Taille map Voiturier avant un suppr = " << voiturierEntree.size();
+			Afficher(MESSAGE, a.str().c_str());
+			sleep(5);
+			Effacer(MESSAGE);*/
+			
 			int numPlace = WEXITSTATUS ( crdu );
 			Voiture voiture = voiturierEntree[pid];
 			voiture.heureArrivee = time(NULL);
 			//Suppression de la liste des voituriers qui travaillent
 			voiturierEntree.erase(pid);
+			
+			/*a.str("");
+			a << "Taille map Voiturier après un suppr = " << voiturierEntree.size();
+			Afficher(MESSAGE, a.str().c_str());
+			sleep(5);
+			Effacer(MESSAGE);*/
 
 			//Prise du Mutex
 			semaphore(CLEF,-1);
@@ -103,12 +116,24 @@ void destructionEntree (int numSignal)
 {
 	//Masquage du signal SIGCHLD
 	Handler(SIGCHLD, SIG_IGN);
-
+	int i = 0;
+	stringstream a;
+	
+	
 	for ( map< pid_t, Voiture>::iterator iter = voiturierEntree.begin();iter != voiturierEntree.end(); ++iter )
 	{
+		i++;
+		stringstream s;
+		/*s << "Voiturier " << i << " détruit";
+		Afficher(MESSAGE, s.str().c_str());
+		sleep(5);
+		Effacer(MESSAGE);*/
 		kill ( iter->first, SIGUSR2 );
 		waitpid( iter->first, NULL, 0 );
 	}
+	/*Afficher(MESSAGE, "Entrée destruction après for");
+	sleep(5);
+	Effacer(MESSAGE);*/
 	exit(0);
 }
 
@@ -142,8 +167,7 @@ int verificationPlacesLibres()
 
 void Entree(int canal[2], TypeBarriere barriere)
 {
-
-	int lecture=0;
+	int lecture;
 	RequeteVoiture message;
 	canalLectureE=canal[0];
 	close(canal[1]);
@@ -154,10 +178,9 @@ void Entree(int canal[2], TypeBarriere barriere)
 
 	//---------------------------------------------------Phase Moteur
 
-
 	for(;;)
 	{
-		lecture = read( canalLectureE, &message, sizeof( char ) );
+		lecture = read( canalLectureE, &message, sizeof( RequeteVoiture ) );
 		
 		if ( lecture > 0 )
 		{
@@ -175,6 +198,12 @@ void Entree(int canal[2], TypeBarriere barriere)
 			}
 
 			pid_t voiturier = GarerVoiture(barriere);
+			/*stringstream s;
+			s << "Nouveau voiturier - PID = " << voiturier;
+			Afficher(MESSAGE, s.str().c_str());
+			sleep(5);
+			Effacer(MESSAGE);*/
+			
 			voiturierEntree[voiturier]=message.voiture;
 			sleep(ENTREE_DELAIS);
 
