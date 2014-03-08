@@ -197,12 +197,6 @@ void Entree(int canal[2], TypeBarriere barriere)
 			}
 
 			pid_t voiturier = GarerVoiture(barriere);
-			/*stringstream s;
-			s << "Nouveau voiturier - PID = " << voiturier;
-			Afficher(MESSAGE, s.str().c_str());
-			sleep(5);
-			Effacer(MESSAGE);*/
-			
 			voiturierEntree[voiturier]=message.voiture;
 			sleep(ENTREE_DELAIS);
 
