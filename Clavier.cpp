@@ -93,10 +93,10 @@ void Clavier ( int canals[2],int canalgb[2],int canalpbp[2],int canalabp[2] )
 	canalPBP[1] = canalpbp[1];
 
 	//Fermeture des cotés non utilisés
-	close(canalS[0]);
-	close(canalGB[0]);
-	close(canalABP[0]);
-	close(canalPBP[0]);
+	close(canals[0]);
+	close(canalgb[0]);
+	close(canalabp[0]);
+	close(canalpbp[0]);
 
 	//------------------------------------------------Phase Moteur
 	while(true)

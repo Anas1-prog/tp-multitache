@@ -16,6 +16,7 @@
 #include <sys/sem.h>
 #include <signal.h>
 #include <stdio.h>
+#include <fstream>
 //------------------------------------------------------ Include personnel
 #include "Mere.h"
 
@@ -25,7 +26,7 @@
 #define CHMOD_MPWRITE 200
 #define CHMOD_SEMREAD 400
 #define CHMOD_SEMWRITE 200
-#define CHEMIN "parking"
+#define CHEMIN "Parking"
 #define CLEFS 3
 
 
@@ -66,9 +67,7 @@ int main ( int argc, const char * argv[] )
 // Algorithme :
 //
 {
-	
-	printf("CLEF = %d", CLEF);
-	system("ipcs > ipc_e.txt");
+
 	pid_t clavierPid;
 	pid_t heurePid;
 	pid_t entreeABPPid, entreePBPPid, entreeGBPid;
@@ -85,14 +84,11 @@ int main ( int argc, const char * argv[] )
 	int semId = semget ( CLEF, 1, (IPC_CREAT|IPC_EXCL|CHMOD_SEMREAD|CHMOD_SEMWRITE) );
 
 	//Création du canal de communication Clavier->EntreeGastonBerger
-
 	pipe(CanalGB);
 	//Création du canal de communication Clavier->EntreeProfBlaisePascal
 	pipe(CanalPBP);
-
 	//Création du canal de communication Clavier->EntreeProfBlaisePascal
 	pipe(CanalABP);
-
 	//Création du canal de communication Clavier->Sortie
 	pipe(CanalS);
 
@@ -156,7 +152,6 @@ int main ( int argc, const char * argv[] )
 			close(CanalPBP[1]);
 
 			TerminerApplication( true );
-			system("ipcs > ipc_s.txt");
 			exit(0);
 		}
 }

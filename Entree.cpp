@@ -163,14 +163,21 @@ void Entree(int canal[2], TypeBarriere barriere)
 
 			//Verification si il y a des places de libres dans le parking :
 			if (verificationPlacesLibres()<0)
+
 			{
+				autorisationPassage = false;
 				//Attente de l'envoi d'un signal par la sortie
 				Handler(SIGUSR1, passageVoiture );
-				autorisationPassage = false;
+				while(!autorisationPassage)
+				{
+					pause();
+				}
+				Handler(SIGUSR1,SIG_IGN);//Masquage du signal
 			}
 
 
-		GarerVoiture(barriere);
+		pid_t voiturier = GarerVoiture(barriere);
+		voiturierEntree[voiturier]=message.voiture;
 		sleep(ENTREE_DELAIS);
 
 
