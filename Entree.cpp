@@ -90,6 +90,7 @@ void initialisationEntree ( )
 //Algo
 //
 {
+	Handler ( SIGUSR1, SIG_IGN);
 	Handler ( SIGUSR2 , destructionEntree ) ;
 	Handler ( SIGCHLD , entreeVoiture ) ;
 }

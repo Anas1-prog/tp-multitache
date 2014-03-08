@@ -6,8 +6,8 @@ EXE = Parking
 CPPFLAGS = -Wall
 EDLFLAGS = 
 LIBS = 
-LIBPATH = -L/shares/public/tp/tp-multitache
-INCPATH = -I/shares/public/tp/tp-multitache
+LIBPATH = -L/home/keke/Repo/tp-multitache/tp-multitache
+INCPATH = -I/home/keke/Repo/tp-multitache/tp-multitache
 CLEAN = efface
 RMFLAGS = -f
 
