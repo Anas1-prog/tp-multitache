@@ -131,16 +131,34 @@ int main ( int argc, const char * argv[] )
 			Handler ( SIGUSR2, finHeure);
 
 			waitpid ( clavierPid , NULL , 0 ); // Attente de la Fin de la tache Clavier
+			Afficher(MESSAGE, "Clavier détruit");
+			sleep(5);
+			Effacer(MESSAGE);
 			kill ( heurePid , SIGUSR2 );
 			waitpid ( heurePid , NULL , 0 );
+			Afficher(MESSAGE, "Heure détruite");
+			sleep(5);
+			Effacer(MESSAGE);
 			kill ( sortiePid , SIGUSR2 );
 			waitpid( sortiePid , NULL , 0 );
+			Afficher(MESSAGE, "Sortie détruite");
+			sleep(5);
+			Effacer(MESSAGE);
 			kill ( entreeGBPid , SIGUSR2 );
 			waitpid( entreeGBPid , NULL , 0 );
+			Afficher(MESSAGE, "EntréeGB détruite");
+			sleep(5);
+			Effacer(MESSAGE);
 			kill ( entreeABPPid , SIGUSR2 );
 			waitpid( entreeABPPid , NULL , 0 );
+			Afficher(MESSAGE, "EntréeABP détruite");
+			sleep(5);
+			Effacer(MESSAGE);
 			kill ( entreePBPPid , SIGUSR2 );
 			waitpid( entreePBPPid , NULL , 0 );
+			Afficher(MESSAGE, "EntréePBP détruite");
+			sleep(5);
+			Effacer(MESSAGE);
 
 			//Suppression de la memoire partagee
 			int memoirePartagee = shmget( CLEF, sizeof(EtatParking),IPC_EXCL);
