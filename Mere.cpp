@@ -189,4 +189,3 @@ int main ( int argc, const char * argv[] )
  *
  */
  
- //TODO Mettre à jour l'affichage

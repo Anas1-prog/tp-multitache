@@ -188,11 +188,7 @@ void Entree(int canal[2], TypeBarriere barriere)
 			//Verification si il y a des places de libres dans le parking :
 			if (!verificationPlacesLibres()>0)
 			{
-				/*stringstream s;
-				s << "Nouveau voiturier - PID = " << voiturier;
-				Afficher(MESSAGE, s.str().c_str());
-				sleep(2);
-				Effacer(MESSAGE);*/
+
 				//Place une requete pour entrer dans la mémoire
 				requeteEntree(message.barriere,message.voiture);
 				autorisationPassage = false;
@@ -207,7 +203,6 @@ void Entree(int canal[2], TypeBarriere barriere)
 
 			pid_t voiturier = GarerVoiture(barriere);
 
-			
 			voiturierEntree[voiturier]=message.voiture;
 			sleep(ENTREE_DELAIS);
 

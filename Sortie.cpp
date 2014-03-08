@@ -18,7 +18,6 @@
 #include <map>
 //------------------------------------------------------ Include personnel
 #include "Sortie.h"
-#include "Util.h"
 
 
 ///////////////////////////////////////////////////////////////////  PRIVE
@@ -83,7 +82,6 @@ void sortieVoiture(int numeroSignal)
 //Algo
 //
 {
-
 	int crdu;
 	pid_t pid;
 
@@ -115,7 +113,17 @@ void sortieVoiture(int numeroSignal)
 
 
 			//Maj memoire partagée NbPlace-- et suppression de la PlacedeParking occupée
-
+			
+			
+			//Effacement de la zone à l'écran
+			for ( int i = 1; i < NB_PLACES; i++)
+			{
+				if ( numPlace == i )
+				{
+					Effacer( (TypeZone)(ETAT_P1 + (i-1)) );
+					break;
+				}
+			}
 		}
 	}
 }
@@ -142,7 +150,7 @@ void Sortie ( int canal[2])
 			if (voiturierSortie.find(numPlace) == voiturierSortie.end())
 			{
 				pid_t voiturierpid = SortirVoiture(numPlace);
-				if (voiturierpid !=-1)
+				if (voiturierpid != -1)
 				{
 					voiturierSortie[numPlace] = voiturierpid;
 				}
