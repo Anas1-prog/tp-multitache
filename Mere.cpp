@@ -179,7 +179,7 @@ int main ( int argc, const char * argv[] )
  *
  * -Memoire partagéé mise en place
  * -Semaphore d'exclusion mutuelle mise en place
- * -Initialisation de la mémoire à NB_PLACES libres
+ * -Initialisation de la mémoire à NB_PLACES libres dans mère
  *
  * -Creation d'une fonction pour agir sur la semaphore : semaphore(int clef, short semOp)
  *
