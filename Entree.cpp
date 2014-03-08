@@ -38,6 +38,30 @@ extern const key_t CLEF;
 //{
 //} //----- fin de nom
 
+static void requeteEntree(TypeBarriere barriere,Voiture voiture)
+// Mode d'emploi :Crée une requete de demande d'entrée lorsqu'aucune place n'est occupée
+//
+// Contrat : Gestion de l'affichage à l'écran dans la fonction
+//
+// Algorithme :
+//
+{
+	time_t heureArr = time(NULL);
+	RequeteVoiture requete = RequeteVoiture(barriere,voiture,getpid(),heureArr);
+	//Prise du Mutex
+		semaphore(CLEF,-1);
+
+	//Acces memoire partagée
+	int memoirePartagee = shmget ( CLEF , sizeof(EtatParking), IPC_EXCL);
+	EtatParking * etat = (EtatParking *)shmat(memoirePartagee, NULL, 0);
+	etat->requetes[barriere-1]=requete;
+
+	//Libere la memoire
+	shmdt(etat);
+	//Libere le Mutex
+	semaphore(CLEF,1);
+	AfficherRequete(barriere,voiture.usager,heureArr);
+}
 
 void entreeVoiture(int numSignal)
 // Mode d'emploi :
@@ -55,24 +79,12 @@ void entreeVoiture(int numSignal)
 	{
 		if (WIFEXITED ( crdu ))
 		{
-			/*stringstream a;
-			a << "Taille map Voiturier avant un suppr = " << voiturierEntree.size();
-			Afficher(MESSAGE, a.str().c_str());
-			sleep(5);
-			Effacer(MESSAGE);*/
-			
 			int numPlace = WEXITSTATUS ( crdu );
 			Voiture voiture = voiturierEntree[pid];
 			voiture.heureArrivee = time(NULL);
 			//Suppression de la liste des voituriers qui travaillent
 			voiturierEntree.erase(pid);
 			
-			/*a.str("");
-			a << "Taille map Voiturier après un suppr = " << voiturierEntree.size();
-			Afficher(MESSAGE, a.str().c_str());
-			sleep(5);
-			Effacer(MESSAGE);*/
-
 			//Prise du Mutex
 			semaphore(CLEF,-1);
 			//Acces memoire partagée
@@ -116,24 +128,13 @@ void destructionEntree (int numSignal)
 {
 	//Masquage du signal SIGCHLD
 	Handler(SIGCHLD, SIG_IGN);
-	int i = 0;
-	stringstream a;
-	
 	
 	for ( map< pid_t, Voiture>::iterator iter = voiturierEntree.begin();iter != voiturierEntree.end(); ++iter )
 	{
-		i++;
-		stringstream s;
-		/*s << "Voiturier " << i << " détruit";
-		Afficher(MESSAGE, s.str().c_str());
-		sleep(5);
-		Effacer(MESSAGE);*/
+
 		kill ( iter->first, SIGUSR2 );
 		waitpid( iter->first, NULL, 0 );
 	}
-	/*Afficher(MESSAGE, "Entrée destruction après for");
-	sleep(5);
-	Effacer(MESSAGE);*/
 	exit(0);
 }
 
@@ -185,8 +186,15 @@ void Entree(int canal[2], TypeBarriere barriere)
 		if ( lecture > 0 )
 		{
 			//Verification si il y a des places de libres dans le parking :
-			if (verificationPlacesLibres()<0)
+			if (!verificationPlacesLibres()>0)
 			{
+				/*stringstream s;
+				s << "Nouveau voiturier - PID = " << voiturier;
+				Afficher(MESSAGE, s.str().c_str());
+				sleep(2);
+				Effacer(MESSAGE);*/
+				//Place une requete pour entrer dans la mémoire
+				requeteEntree(message.barriere,message.voiture);
 				autorisationPassage = false;
 				//Attente de l'envoi d'un signal par la sortie
 				Handler(SIGUSR1, passageVoiture );
@@ -198,11 +206,7 @@ void Entree(int canal[2], TypeBarriere barriere)
 			}
 
 			pid_t voiturier = GarerVoiture(barriere);
-			/*stringstream s;
-			s << "Nouveau voiturier - PID = " << voiturier;
-			Afficher(MESSAGE, s.str().c_str());
-			sleep(5);
-			Effacer(MESSAGE);*/
+
 			
 			voiturierEntree[voiturier]=message.voiture;
 			sleep(ENTREE_DELAIS);

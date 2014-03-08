@@ -182,7 +182,7 @@ int main ( int argc, const char * argv[] )
  *
  * -Creation d'une fonction pour agir sur la semaphore : semaphore(int clef, short semOp)
  *
- *
+ * -
  *
  *
  *

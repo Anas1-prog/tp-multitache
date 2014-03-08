@@ -54,16 +54,17 @@ struct Voiture {
 struct RequeteVoiture {
 	TypeBarriere barriere;
 	Voiture voiture;
+	time_t heureRequete;
 	pid_t pid; //Pid du processus Entree
 
 	//----------------------------------------------Constructeur par defaut
-	RequeteVoiture():barriere(AUCUNE),voiture(Voiture())
+	RequeteVoiture():barriere(AUCUNE),voiture(Voiture()),heureRequete(time(NULL))
 	{
 		//Vide
 	}
 
 	//---------------------------------------------------------Constructeur
-	RequeteVoiture(TypeBarriere b, Voiture v):barriere(b),voiture(v)
+	RequeteVoiture(TypeBarriere b, Voiture v, pid_t p,time_t t):barriere(b),voiture(v),pid(p),heureRequete(t)
 	{
 		//Vide
 	}
