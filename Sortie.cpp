@@ -41,7 +41,6 @@ extern key_t const CLEF;
 //} //----- fin de nom
 
 
-		//TODO Fonction de comparaison des priorités
 static bool comparaisonPriorite(RequeteVoiture req1, RequeteVoiture req2)
 // Mode d'emploi :
 // Retourne true si req1 est prioritaire
@@ -104,8 +103,6 @@ static bool comparaisonPriorite(RequeteVoiture req1, RequeteVoiture req2)
 }
 
 
-		//TODO Fonction qui compare les priorités des voitures devant chaque portes et
-		//qui signale à l'entrée concerné qu'elle peut faire entrer une nouvelle voiture
 static void choixEntreePrioritaire()
 //Mode d'emploi
 //Fonction appelée lorsqu'une place vient de se libérer
@@ -118,9 +115,12 @@ static void choixEntreePrioritaire()
 	//Attachement memoire partagée
 	int memoirePartagee = shmget ( CLEF , sizeof(EtatParking), IPC_EXCL);
 	EtatParking * etat = (EtatParking *)shmat(memoirePartagee, NULL, 0);
-
+	//Prise du Mutex
+	semaphore(CLEF,-1);
 	RequeteVoiture requete[NB_ENTREES] = etat->requetes;
 	int nombreRequetes = etat->nombreRequetes;
+	//Libere le Mutex
+	semaphore(CLEF,1);
 
 	if(nombreRequetes>0)
 	{
@@ -190,37 +190,37 @@ void sortieVoiture(int numeroSignal)
 	int crdu;
 	pid_t pid;
 
-	//Verifie la fin d'un fils, WNOHANG : non bloquant
+	//Verifie la fin d'un fils, WNOHANG : non bloquant car le fils est déjà mort (en theorie)
 	while ( (pid = waitpid(-1,&crdu,WNOHANG) ) > 0 )
 	{
 		if (WIFEXITED ( crdu ))
 		{
 			int numPlace = WEXITSTATUS ( crdu );
-			//Suppression de la liste des voituriers qui travaillent
+			//Suppression de la liste des voituriers
 			voiturierSortie.erase(numPlace-1);
 
-
-			//Prise du Mutex
-			semaphore(CLEF,-1);
 			//Acces memoire partagée
 			int memoirePartagee = shmget ( CLEF , sizeof(EtatParking), IPC_EXCL);
 			EtatParking * etat = (EtatParking *)shmat(memoirePartagee, NULL, 0);
 
-			//Retrait de la voiture qui vient de sortir dans la memoire et decrementation nb place
-
+			//Prise du Mutex
+			semaphore(CLEF,-1);
+			//Retrait de la voiture qui vient de sortir dans la memoire
+			//et decrementation nb place
 			etat->placeLibres++;
+			Voiture voiture = etat->place[numPlace];
 
-			//Libere la memoire
-			shmdt(etat);
 			//Libere le Mutex
 			semaphore(CLEF,1);
 
+			//Libere la memoire
+			shmdt(etat);
 
-			//Maj memoire partagée NbPlace-- et suppression de la PlacedeParking occupée
-			
-			
+			AfficherSortie(voiture.usager,voiture.matricule,voiture.heureArrivee,time(NULL));
 			//Effacement de la zone à l'écran
 			Effacer( ( TypeZone )( ETAT_P1 + ( numPlace - 1 ) ) );
+
+			choixEntreePrioritaire();
 		}
 	}
 }
@@ -244,6 +244,7 @@ void Sortie ( int canal[2])
 
 		if(lecture>0)
 		{
+			//Vérifie si la tache n'est pas déjà créee
 			if (voiturierSortie.find(numPlace) == voiturierSortie.end())
 			{
 				pid_t voiturierpid = SortirVoiture(numPlace);

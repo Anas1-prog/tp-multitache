@@ -124,6 +124,7 @@ int main ( int argc, const char * argv[] )
 	//récupere la mémoire partagée
 	EtatParking  * etat = (EtatParking *)shmat( memoirePartagee, NULL,0);
 	etat->placeLibres=NB_PLACES;
+	etat->nombreRequetes=0;
 	shmdt ( etat );//Libère la mémoire
 
 	//Libere le mutex
@@ -185,14 +186,17 @@ int main ( int argc, const char * argv[] )
  *
  * -Memoire partagéé mise en place
  * -Semaphore d'exclusion mutuelle mise en place
- * -Initialisation de la mémoire à NB_PLACES libres dans mère
- *
  * -Creation d'une fonction pour agir sur la semaphore : semaphore(int clef, short semOp)
+ * -Initialisation de la mémoire à NB_PLACES libres dans mère
+ * -Affichage des voitures qui sont entrées dans le parking
+ * -Effacement de l'affichage des voitures qui sortent du parking
+ *
  *
  * -Creation de requetes d'entree par les Entrées + Affichage des requetes.
  *
- *	-TODO : Comparaison des requetes par la sortie (j'y travaille)
+ * -Comparaison des requetes par la sortie et envoie du signal à l'entrée qui fait rentrer une voiture
  *
+ *	-TODO Fin anormale (CTRL-C) tuer les process proprement
  *
  *
  */

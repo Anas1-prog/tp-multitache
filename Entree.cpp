@@ -55,11 +55,12 @@ static void requeteEntree(TypeBarriere barriere,Voiture voiture)
 	int memoirePartagee = shmget ( CLEF , sizeof(EtatParking), IPC_EXCL);
 	EtatParking * etat = (EtatParking *)shmat(memoirePartagee, NULL, 0);
 	etat->requetes[barriere-1]=requete;
-
-	//Libere la memoire
-	shmdt(etat);
+	etat->nombreRequetes++;
 	//Libere le Mutex
 	semaphore(CLEF,1);
+	//Libere la memoire
+	shmdt(etat);
+
 	AfficherRequete(barriere,voiture.usager,heureArr);
 }
 
@@ -144,21 +145,19 @@ void passageVoiture(int numSignal)
 }
 
 int verificationPlacesLibres()
+//Mode d'emploi
+//Attachement mémoire pour renvoyer le nombre de places disponibles
 {
-
-	//Prise du Mutex
-	semaphore(CLEF,-1);
-
-	//Acces memoire partagée
+	//Attachement memoire partagée
 	int memoirePartagee = shmget ( CLEF , sizeof(EtatParking), IPC_EXCL);
 	EtatParking * etat = (EtatParking *)shmat(memoirePartagee, NULL, 0);
+	//Prise du Mutex
+	semaphore(CLEF,-1);
 	int placeLibre = etat->placeLibres;
-
-	//Libere la memoire
-	shmdt(etat);
 	//Libere le Mutex
-	semaphore(CLEF,1);
-
+		semaphore(CLEF,1);
+	//Detache de la memoire
+	shmdt(etat);
 	return placeLibre;
 }
 

@@ -61,7 +61,7 @@ struct RequeteVoiture {
 	//----------------------------------------------Constructeur par defaut
 	RequeteVoiture():barriere(AUCUNE),voiture(Voiture()),heureRequete(time(NULL)), actif(false)
 	{
-		//Vide
+		pid=NULL;
 	}
 
 	//---------------------------------------------------------Constructeur
