@@ -136,6 +136,7 @@ static void choixEntreePrioritaire()
 
 		//envoie SIGUSR1 à l'entrée concernée
 		kill(requete[prio].pid,SIGUSR1);
+		Effacer( (TypeZone)(REQUETE_R1+prio) );
 		//Prise du Mutex
 		semaphore(CLEF,-1);
 		etat->nombreRequetes--;

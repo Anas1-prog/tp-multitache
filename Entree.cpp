@@ -67,7 +67,8 @@ static void requeteEntree(TypeBarriere barriere,Voiture voiture)
 void entreeVoiture(int numSignal)
 // Mode d'emploi :
 //
-// Contrat :
+// Contrat : Decrementation se fait avant car on ne peut pas attendre
+//			 que la voiture soit garée pour signaler que la place est prise
 //
 // Algorithme :
 //
@@ -86,20 +87,20 @@ void entreeVoiture(int numSignal)
 			//Suppression de la liste des voituriers qui travaillent
 			voiturierEntree.erase(pid);
 			
-			//Prise du Mutex
-			semaphore(CLEF,-1);
 			//Acces memoire partagée
 			int memoirePartagee = shmget ( CLEF , sizeof(EtatParking), IPC_EXCL);
 			EtatParking * etat = (EtatParking *)shmat(memoirePartagee, NULL, 0);
 
-			//Ajout de la voiture qui vient d'entrer dans la memoire et decrementation nb place
+			//Prise du Mutex
+			semaphore(CLEF,-1);
+			//Ajout de la voiture qui vient d'entrer dans la memoire
 			etat->place[numPlace-1]=voiture;
-			etat->placeLibres--;
+			//Libere le Mutex
+			semaphore(CLEF,1);
 
 			//Libere la memoire
 			shmdt(etat);
-			//Libere le Mutex
-			semaphore(CLEF,1);
+
 
 			//Afficher la voiture sur la memoire terminal
 			AfficherPlace( numPlace, voiture.usager, voiture.matricule,voiture.heureArrivee);
@@ -199,6 +200,20 @@ void Entree(int canal[2], TypeBarriere barriere)
 				}
 				Handler(SIGUSR1,SIG_IGN);//Masquage du signal
 			}
+
+			//Acces memoire partagée
+			int memoirePartagee = shmget ( CLEF , sizeof(EtatParking), IPC_EXCL);
+			EtatParking * etat = (EtatParking *)shmat(memoirePartagee, NULL, 0);
+
+			//Prise du Mutex
+			semaphore(CLEF,-1);
+			//Ajout de la voiture qui vient d'entrer dans la memoire et decrementation nb place
+			etat->placeLibres--;
+			//Libere le Mutex
+			semaphore(CLEF,1);
+
+			//Libere la memoire
+			shmdt(etat);
 
 			pid_t voiturier = GarerVoiture(barriere);
 

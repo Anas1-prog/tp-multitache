@@ -197,6 +197,9 @@ int main ( int argc, const char * argv[] )
  * -Comparaison des requetes par la sortie et envoie du signal à l'entrée qui fait rentrer une voiture
  *
  *	-TODO Fin anormale (CTRL-C) tuer les process proprement
+ *	-TODO NB_ENTREES Files de requetes pour chaques portes, représentant les voitures
+ *	qui attendent pour rentrer à chaque portes.
+ *		-Recalcule de l'heure d'arrivé lorsqu'elle est placée dans la mémoire partagée
  *
  *
  */
