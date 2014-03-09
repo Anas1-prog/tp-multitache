@@ -219,14 +219,7 @@ void sortieVoiture(int numeroSignal)
 			
 			
 			//Effacement de la zone à l'écran
-			for ( int i = 1; i < NB_PLACES; i++)
-			{
-				if ( numPlace == i )
-				{
-					Effacer( (TypeZone)(ETAT_P1 + (i-1)) );
-					break;
-				}
-			}
+			Effacer( ( TypeZone )( ETAT_P1 + ( numPlace - 1 ) ) );
 		}
 	}
 }
