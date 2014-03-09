@@ -128,7 +128,7 @@ void destructionEntree (int numSignal)
 {
 	//Masquage du signal SIGCHLD
 	Handler(SIGCHLD, SIG_IGN);
-	
+
 	for ( map< pid_t, Voiture>::iterator iter = voiturierEntree.begin();iter != voiturierEntree.end(); ++iter )
 	{
 

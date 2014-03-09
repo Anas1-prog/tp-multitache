@@ -39,6 +39,11 @@ static int CanalS[2];
 static int CanalGB[2];
 static int CanalPBP[2];
 static int CanalABP[2];
+static pid_t clavierPid;
+static pid_t heurePid;
+static pid_t entreeABPPid, entreePBPPid, entreeGBPid;
+static pid_t sortiePid;
+static int semId;
 int const CLEF = ftok ( CHEMIN, CLEFS );
 
 //------------------------------------------------------ Fonctions privées
@@ -60,29 +65,61 @@ void finHeure ( int noSignal )
 }
 
 
+void destructionMere(int signal)
+{
+	if ( signal == SIGINT)
+	{
+		Handler ( SIGUSR2, finHeure);
 
+		waitpid ( clavierPid , NULL , 0 ); // Attente de la Fin de la tache Clavier
+		kill ( heurePid , SIGUSR2 );
+		waitpid ( heurePid , NULL , 0 );
+		kill ( sortiePid , SIGUSR2 );
+		waitpid( sortiePid , NULL , 0 );
+		kill ( entreeGBPid , SIGUSR2 );
+		waitpid( entreeGBPid , NULL , 0 );
+		kill ( entreeABPPid , SIGUSR2 );
+		waitpid( entreeABPPid , NULL , 0 );
+		kill ( entreePBPPid , SIGUSR2 );
+		waitpid( entreePBPPid , NULL , 0 );
+
+		//Suppression de la memoire partagee
+		int memoirePartagee = shmget( CLEF, sizeof(EtatParking),IPC_EXCL);
+		shmctl( memoirePartagee,IPC_RMID,0);
+		//Suppression de la semaphore d'exclusion mutuelle
+		semId = semget ( CLEF,1,IPC_EXCL);
+		semctl(semId,0,IPC_RMID,0);
+		//Libere les canaux de communication
+		close(CanalS[0]);
+		close(CanalS[1]);
+		close(CanalGB[0]);
+		close(CanalGB[1]);
+		close(CanalABP[0]);
+		close(CanalABP[1]);
+		close(CanalPBP[0]);
+		close(CanalPBP[1]);
+
+
+		TerminerApplication( true );
+		exit(0);
+	}
+}
 //////////////////////////////////////////////////////////////////  PUBLIC
 //---------------------------------------------------- Fonctions publiques
 int main ( int argc, const char * argv[] )
 // Algorithme :
 //
 {
-
-	pid_t clavierPid;
-	pid_t heurePid;
-	pid_t entreeABPPid, entreePBPPid, entreeGBPid;
-	pid_t sortiePid;
-
 		//--------------------------------------------------Initialisation
 
 	InitialiserApplication( XTERM );
-
+	Handler ( SIGINT, destructionMere );
 	//Mise en place de la mémoire partagée
 	int memoirePartagee = shmget ( CLEF, sizeof(EtatParking), (IPC_CREAT|IPC_EXCL|CHMOD_MPREAD|CHMOD_MPWRITE) );
 
 
 	//Mise en place du Mutex
-	int semId = semget ( CLEF, 1, (IPC_CREAT|IPC_EXCL|CHMOD_SEMREAD|CHMOD_SEMWRITE) );
+	semId = semget ( CLEF, 1, (IPC_CREAT|IPC_EXCL|CHMOD_SEMREAD|CHMOD_SEMWRITE) );
 
 	//récupere la mémoire partagée
 	EtatParking  * etat = (EtatParking *)shmat( memoirePartagee, NULL,0);
@@ -130,37 +167,7 @@ int main ( int argc, const char * argv[] )
 			//---------------------------------------------Destruction
 			Handler ( SIGUSR2, finHeure);
 
-			waitpid ( clavierPid , NULL , 0 ); // Attente de la Fin de la tache Clavier
-			kill ( heurePid , SIGUSR2 );
-			waitpid ( heurePid , NULL , 0 );
-			kill ( sortiePid , SIGUSR2 );
-			waitpid( sortiePid , NULL , 0 );
-			kill ( entreeGBPid , SIGUSR2 );
-			waitpid( entreeGBPid , NULL , 0 );
-			kill ( entreeABPPid , SIGUSR2 );
-			waitpid( entreeABPPid , NULL , 0 );
-			kill ( entreePBPPid , SIGUSR2 );
-			waitpid( entreePBPPid , NULL , 0 );
-
-			//Suppression de la memoire partagee
-			int memoirePartagee = shmget( CLEF, sizeof(EtatParking),IPC_EXCL);
-			shmctl( memoirePartagee,IPC_RMID,0);
-			//Suppression de la semaphore d'exclusion mutuelle
-			semId = semget ( CLEF,1,IPC_EXCL);
-			semctl(semId,0,IPC_RMID,0);
-			//Libere les canaux de communication
-			close(CanalS[0]);
-			close(CanalS[1]);
-			close(CanalGB[0]);
-			close(CanalGB[1]);
-			close(CanalABP[0]);
-			close(CanalABP[1]);
-			close(CanalPBP[0]);
-			close(CanalPBP[1]);
-			
-
-			TerminerApplication( true );
-			exit(0);
+			destructionMere(SIGINT);
 		}
 }
 

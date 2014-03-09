@@ -163,11 +163,12 @@ void initialisationSortie ( )
 
 }
 
-void destructionSortie( int numeroSignal)
+void destructionSortie( int signal)
 //Mode d'emploi
 //Appelé lorsqu'on veut détruire la tache sortie
 //Algo
 {
+	if(signal == SIGINT)
 	//Masquage du signal SIGCHLD
 	Handler(SIGCHLD, SIG_IGN);
 

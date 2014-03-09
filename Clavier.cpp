@@ -61,13 +61,14 @@ static TypeBarriere getTypeBarriere(int numeroBarriere,TypeUsager usager)
 	}
 }
 
-static void fileDeVoiture(TypeBarriere entree,TypeUsager usager)
+static void fileDeVoiture(TypeBarriere barriere,TypeUsager usager)
 //Algo
 // Ajoute une nouvelle voiture avec ses proprietes à une entree donnée
 {
 	Voiture voiture = Voiture(usager);
-	RequeteVoiture message = RequeteVoiture(entree,voiture);
-	DessinerVoitureBarriere(entree, usager );
+	time_t heureArr = time(NULL);
+	RequeteVoiture message = RequeteVoiture(barriere,voiture,getpid(),heureArr);
+	DessinerVoitureBarriere(barriere, usager );
 	write( canalCommun, &message, sizeof(message) );
 	//Communique avec l'entrée choisie pour lui dire de laisser entrer une nouvelle voiture
 }
