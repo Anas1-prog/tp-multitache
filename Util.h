@@ -56,15 +56,16 @@ struct RequeteVoiture {
 	Voiture voiture;
 	time_t heureRequete;
 	pid_t pid; //Pid du processus Entree
+	bool actif; //true si il y a une requete, false si il n'y en a pas
 
 	//----------------------------------------------Constructeur par defaut
-	RequeteVoiture():barriere(AUCUNE),voiture(Voiture()),heureRequete(time(NULL))
+	RequeteVoiture():barriere(AUCUNE),voiture(Voiture()),heureRequete(time(NULL)), actif(false)
 	{
 		//Vide
 	}
 
 	//---------------------------------------------------------Constructeur
-	RequeteVoiture(TypeBarriere b, Voiture v, pid_t p,time_t t):barriere(b),voiture(v),pid(p),heureRequete(t)
+	RequeteVoiture(TypeBarriere b, Voiture v, pid_t p,time_t t):barriere(b),voiture(v),pid(p),heureRequete(t),actif(true)
 	{
 		//Vide
 	}
@@ -77,8 +78,10 @@ struct RequeteVoiture {
 struct EtatParking
 {
 	int placeLibres;
+	int nombreRequetes;
 	Voiture place[NB_PLACES];
 	RequeteVoiture requetes[NB_ENTREES];
+
 };
 
 

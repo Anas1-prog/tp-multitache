@@ -42,11 +42,115 @@ extern key_t const CLEF;
 
 
 		//TODO Fonction de comparaison des priorités
-//static void comparaisonPriorite()
+static bool comparaisonPriorite(RequeteVoiture req1, RequeteVoiture req2)
+// Mode d'emploi :
+// Retourne true si req1 est prioritaire
+//Retourne false si req2 est prioritaire
+// Contrat :
+//
+// Algorithme :
+//
+{
+	//Vérifie d'abord la pertinance de la requete stocké dans le tableau
+	//La fonction va comparer toutes les requetes de la mémoire partagée,
+	//meme celle qui sont vides.
+	if (!req1.actif)
+	{
+		return false;
+	}
+	if (!req2.actif)
+	{
+		return true;
+	}
+
+	//Cas normal : comparaison des priorités.
+	if (req1.voiture.usager==PROF)
+	{
+		if(req2.voiture.usager==AUTRE)
+		{
+			return true;
+		}
+		else
+		{
+			if (req1.heureRequete>=req2.heureRequete)
+			{
+				return false;
+			}
+			else
+			{
+				return true;
+			}
+		}
+
+	}
+	else
+	{
+		if (req2.voiture.usager==PROF)
+		{
+			return false;
+		}
+		else
+		{
+			if (req1.heureRequete>=req2.heureRequete)
+			{
+				return false;
+			}
+			else
+			{
+				return true;
+			}
+		}
+	}
+}
+
 
 		//TODO Fonction qui compare les priorités des voitures devant chaque portes et
 		//qui signale à l'entrée concerné qu'elle peut faire entrer une nouvelle voiture
-//static void choixEntreePrioritaire()
+static void choixEntreePrioritaire()
+//Mode d'emploi
+//Fonction appelée lorsqu'une place vient de se libérer
+//La sortie doit choisir quelle entrée est la plus prioritaire parmis les requetes.
+//Algo
+//
+//Contrat : Gestion de l'affichage intégré
+{
+
+	//Attachement memoire partagée
+	int memoirePartagee = shmget ( CLEF , sizeof(EtatParking), IPC_EXCL);
+	EtatParking * etat = (EtatParking *)shmat(memoirePartagee, NULL, 0);
+
+	RequeteVoiture requete[NB_ENTREES] = etat->requetes;
+	int nombreRequetes = etat->nombreRequetes;
+
+	if(nombreRequetes>0)
+	{
+		//Recupere la requete la plus prioritaire
+		int prio=0;
+		for (int i =1; i<NB_ENTREES;i++)
+		{
+			if (comparaisonPriorite(requete[i],requete[prio]))
+			{
+				prio=i;
+			}
+		}
+
+		//envoie SIGUSR1 à l'entrée concernée
+		kill(requete[prio].pid,SIGUSR1);
+		//Prise du Mutex
+		semaphore(CLEF,-1);
+		etat->nombreRequetes--;
+		etat->requetes[prio].actif=false;//desactive la requête.
+		//Libere le Mutex
+		semaphore(CLEF,1);
+
+		//Detache de la mémoire
+		shmdt(etat);
+
+
+
+	}
+
+}
 
 void initialisationSortie ( )
 //Mode d'emploi
@@ -91,7 +195,6 @@ void sortieVoiture(int numeroSignal)
 		if (WIFEXITED ( crdu ))
 		{
 			int numPlace = WEXITSTATUS ( crdu );
-//			int numPlace = voiturierSortie.find(pid);
 			//Suppression de la liste des voituriers qui travaillent
 			voiturierSortie.erase(numPlace-1);
 
