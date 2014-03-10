@@ -54,8 +54,8 @@ struct Voiture {
 struct RequeteVoiture {
 	TypeBarriere barriere;
 	Voiture voiture;
-	time_t heureRequete;
 	pid_t pid; //Pid du processus Entree
+	time_t heureRequete;
 	bool actif; //true si il y a une requete, false si il n'y en a pas
 
 	//----------------------------------------------Constructeur par defaut
