@@ -61,7 +61,7 @@ static TypeBarriere getTypeBarriere(int numeroBarriere,TypeUsager usager)
 	}
 }
 
-static void fileDeVoiture(TypeBarriere barriere,TypeUsager usager)
+static void requeteEntree(TypeBarriere barriere,TypeUsager usager)
 //Algo
 // Ajoute une nouvelle voiture avec ses proprietes à une entree donnée
 {
@@ -123,11 +123,11 @@ void Commande ( char code, unsigned int valeur )
 		break;
 	case 'P' :
 			//Met un nouveau vehicule prioritaire à une barrière d'entrée
-		 fileDeVoiture(getTypeBarriere(valeur,PROF),PROF);
+		 requeteEntree(getTypeBarriere(valeur,PROF),PROF);
 		break;
 	case 'A' :
 			//Met un nouveau véhicule normal à une barrière d'entrée
-		fileDeVoiture(getTypeBarriere(valeur,AUTRE),AUTRE);
+		requeteEntree(getTypeBarriere(valeur,AUTRE),AUTRE);
 		break;
 	case 'S' :
 			//Demande de sortie de la voiture placée à la place valeur
