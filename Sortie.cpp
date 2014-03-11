@@ -16,14 +16,17 @@
 #include <sys/wait.h>
 #include <iostream>
 #include <map>
+
 //------------------------------------------------------ Include personnel
 #include "Sortie.h"
-
+#include "Outils.h"
+#include "Mere.h"
+#include "Util.h"
 
 ///////////////////////////////////////////////////////////////////  PRIVE
 //------------------------------------------------------------- Constantes
 static int canalLectureS;
-static map<int, pid_t> voiturierSortie;
+static map < int , pid_t > voiturierSortie;
 extern key_t const CLEF;
 //------------------------------------------------------------------ Types
 
@@ -41,10 +44,10 @@ extern key_t const CLEF;
 //} //----- fin de nom
 
 
-static bool comparaisonPriorite(RequeteVoiture req1, RequeteVoiture req2)
+static bool comparaisonPriorite ( RequeteVoiture req1 , RequeteVoiture req2 )
 // Mode d'emploi :
 // Retourne true si req1 est prioritaire
-//Retourne false si req2 est prioritaire
+// Retourne false si req2 est prioritaire
 // Contrat :
 //
 // Algorithme :
@@ -53,25 +56,25 @@ static bool comparaisonPriorite(RequeteVoiture req1, RequeteVoiture req2)
 	//Vérifie d'abord la pertinance de la requete stocké dans le tableau
 	//La fonction va comparer toutes les requetes de la mémoire partagée,
 	//meme celle qui sont vides.
-	if (!req1.actif)
+	if ( !req1.actif )
 	{
 		return false;
 	}
-	if (!req2.actif)
+	if ( !req2.actif )
 	{
 		return true;
 	}
 
 	//Cas normal : comparaison des priorités.
-	if (req1.voiture.usager==PROF)
+	if ( req1.voiture.usager == PROF )
 	{
-		if(req2.voiture.usager==AUTRE)
+		if( req2.voiture.usager == AUTRE )
 		{
 			return true;
 		}
 		else
 		{
-			if (req1.heureRequete>=req2.heureRequete)
+			if ( req1.heureRequete >= req2.heureRequete )
 			{
 				return false;
 			}
@@ -80,17 +83,16 @@ static bool comparaisonPriorite(RequeteVoiture req1, RequeteVoiture req2)
 				return true;
 			}
 		}
-
 	}
 	else
 	{
-		if (req2.voiture.usager==PROF)
+		if ( req2.voiture.usager == PROF )
 		{
 			return false;
 		}
 		else
 		{
-			if (req1.heureRequete>=req2.heureRequete)
+			if ( req1.heureRequete >= req2.heureRequete )
 			{
 				return false;
 			}
@@ -103,7 +105,7 @@ static bool comparaisonPriorite(RequeteVoiture req1, RequeteVoiture req2)
 }
 
 
-static void choixEntreePrioritaire()
+static void choixEntreePrioritaire ( )
 //Mode d'emploi
 //Fonction appelée lorsqu'une place vient de se libérer
 //La sortie doit choisir quelle entrée est la plus prioritaire parmis les requetes.
@@ -111,80 +113,76 @@ static void choixEntreePrioritaire()
 //
 //Contrat : Gestion de l'affichage intégré
 {
-
 	//Attachement memoire partagée
-	int memoirePartagee = shmget ( CLEF , sizeof(EtatParking), IPC_EXCL);
-	EtatParking * etat = (EtatParking *)shmat(memoirePartagee, NULL, 0);
+	int memoirePartagee = shmget ( CLEF , sizeof ( EtatParking ) , IPC_EXCL );
+	EtatParking * etat = ( EtatParking * ) shmat ( memoirePartagee , NULL , 0 );
 	//Prise du Mutex
-	semaphore(CLEF,-1);
-	RequeteVoiture requete[NB_ENTREES] = etat->requetes;
+	semaphore ( CLEF , -1 );
+	RequeteVoiture requete [ NB_ENTREES ] = etat->requetes;
 	int nombreRequetes = etat->nombreRequetes;
 	//Libere le Mutex
-	semaphore(CLEF,1);
+	semaphore ( CLEF , 1 );
 
-	if(nombreRequetes>0)
+	if ( nombreRequetes > 0 )
 	{
 		//Recupere la requete la plus prioritaire
-		int prio=0;
-		for (int i =1; i<NB_ENTREES;i++)
+		int prio = 0;
+		for ( int i = 1 ; i < NB_ENTREES ; i++ )
 		{
-			if (comparaisonPriorite(requete[i],requete[prio]))
+			if ( comparaisonPriorite ( requete [ i ] , requete [ prio ] ) )
 			{
-				prio=i;
+				prio = i;
 			}
 		}
 
 		//envoie SIGUSR1 à l'entrée concernée
-		kill(requete[prio].pid,SIGUSR1);
-		Effacer( (TypeZone)(REQUETE_R1+prio) );
+		kill ( requete [ prio ].pid , SIGUSR1 );
+		Effacer ( ( TypeZone ) ( REQUETE_R1 + prio ) );
 		//Prise du Mutex
-		semaphore(CLEF,-1);
+		semaphore ( CLEF , -1 );
 		etat->nombreRequetes--;
-		etat->requetes[prio].actif=false;//desactive la requête.
+		etat->requetes [ prio ].actif = false;//desactive la requête.
 		//Libere le Mutex
-		semaphore(CLEF,1);
+		semaphore ( CLEF , 1 );
 
 		//Detache de la mémoire
-		shmdt(etat);
-
-
-
+		shmdt ( etat );
 	}
 
 }
 
-void initialisationSortie ( )
+static void initialisationSortie ( )
 //Mode d'emploi
-//
+//	Arme le signal SIGUSR2 sur destruction Sortie
+//	et SIGUCHLD sur sortieVoiture
 //Algo
 //
 {
 	Handler ( SIGUSR2 , destructionSortie ) ;
 	Handler ( SIGCHLD , sortieVoiture ) ;
-
 }
 
-void destructionSortie( int signal)
+static void destructionSortie ( int signal )
 //Mode d'emploi
 //Appelé lorsqu'on veut détruire la tache sortie
 //Algo
 {
-	if(signal == SIGINT)
+	if ( signal == SIGINT )
 	//Masquage du signal SIGCHLD
-	Handler(SIGCHLD, SIG_IGN);
+	Handler ( SIGCHLD , SIG_IGN );
 
-	for ( map<int, pid_t>::iterator it = voiturierSortie.begin();
-			it != voiturierSortie.end(); ++it )
+	for ( map < int , pid_t > :: iterator it = voiturierSortie.begin ( ) ;
+			it != voiturierSortie.end( ) ; ++it )
 	{
-		kill ( it->first, SIGUSR2 );
-		waitpid( it->first, NULL, 0 );
+		kill ( it->first , SIGUSR2 );
+		waitpid ( it->first , NULL , 0 );
 	}
-	exit(0);
+	exit ( 0 );
 }
 
-void sortieVoiture(int numeroSignal)
+static void sortieVoiture ( int numeroSignal )
 //Mode d'emploi
-//
+//	Libère une place lorsqu'une voiture est complètement sortie
 //Algo
 //
 {
@@ -192,71 +190,68 @@ void sortieVoiture(int numeroSignal)
 	pid_t pid;
 
 	//Verifie la fin d'un fils, WNOHANG : non bloquant car le fils est déjà mort (en theorie)
-	while ( (pid = waitpid(-1,&crdu,WNOHANG) ) > 0 )
+	while ( ( pid = waitpid ( -1 , &crdu , WNOHANG ) ) > 0 )
 	{
-		if (WIFEXITED ( crdu ))
+		if ( WIFEXITED ( crdu ) )
 		{
 			int numPlace = WEXITSTATUS ( crdu );
 			//Suppression de la liste des voituriers
-			voiturierSortie.erase(numPlace-1);
+			voiturierSortie.erase ( numPlace - 1 );
 
 			//Acces memoire partagée
-			int memoirePartagee = shmget ( CLEF , sizeof(EtatParking), IPC_EXCL);
-			EtatParking * etat = (EtatParking *)shmat(memoirePartagee, NULL, 0);
+			int memoirePartagee = shmget ( CLEF , sizeof ( EtatParking ) , IPC_EXCL );
+			EtatParking * etat = ( EtatParking * ) shmat ( memoirePartagee , NULL , 0 );
 
 			//Prise du Mutex
-			semaphore(CLEF,-1);
+			semaphore ( CLEF , -1 );
 			//Retrait de la voiture qui vient de sortir dans la memoire
 			//et decrementation nb place
 			etat->placeLibres++;
-			Voiture voiture = etat->place[numPlace];
+			Voiture voiture = etat->place[ numPlace ];
 
 			//Libere le Mutex
-			semaphore(CLEF,1);
+			semaphore ( CLEF , 1 );
 
 			//Libere la memoire
-			shmdt(etat);
+			shmdt ( etat );
 
-			AfficherSortie(voiture.usager,voiture.matricule,voiture.heureArrivee,time(NULL));
+			AfficherSortie ( voiture.usager , voiture.matricule , voiture.heureArrivee , time(NULL) );
 			//Effacement de la zone à l'écran
-			Effacer( ( TypeZone )( ETAT_P1 + ( numPlace - 1 ) ) );
+			Effacer( ( TypeZone ) ( ETAT_P1 + ( numPlace - 1 ) ) );
 
-			choixEntreePrioritaire();
+			choixEntreePrioritaire ( ) ;
 		}
 	}
 }
 //////////////////////////////////////////////////////////////////  PUBLIC
 //---------------------------------------------------- Fonctions publiques
-void Sortie ( int canal[2])
+void Sortie ( int canal[ 2 ] )
 // Algorithme :
 //
 {
 	//------------------------------------------------Initialisation
-	canalLectureS=canal[0];
+	canalLectureS = canal[ 0 ];
 	int lecture;
 	int numPlace;
-	close(canal[1]);//Fermeture du canal de lecture
-	initialisationSortie();
+	close ( canal[ 1 ] );//Fermeture du canal de lecture
+	initialisationSortie ( );
 
 	//------------------------------------------------Phase moteur
-	for (;;)
+	for ( ; ; )
 	{
-		lecture = read(canalLectureS,&numPlace, sizeof(int));
+		lecture = read ( canalLectureS , &numPlace , sizeof ( int ) );
 
-		if(lecture>0)
+		if( lecture > 0 )
 		{
 			//Vérifie si la tache n'est pas déjà créee
-			if (voiturierSortie.find(numPlace) == voiturierSortie.end())
+			if ( voiturierSortie.find ( numPlace ) == voiturierSortie.end ( ) )
 			{
-				pid_t voiturierpid = SortirVoiture(numPlace);
-				if (voiturierpid != -1)
+				pid_t voiturierpid = SortirVoiture ( numPlace );
+				if ( voiturierpid != -1 )
 				{
-					voiturierSortie[numPlace] = voiturierpid;
+					voiturierSortie[ numPlace ] = voiturierpid;
 				}
 			}
 		}
 	}
-
-
-
 } //----- fin de Sortie

@@ -19,6 +19,10 @@
 
 //------------------------------------------------------ Include personnel
 #include "Clavier.h"
+#include "Menu.h"
+#include "Mere.h"
+#include "Outils.h"
+#include "Util.h"
 
 
 ///////////////////////////////////////////////////////////////////  PRIVE
@@ -28,86 +32,86 @@
 
 //---------------------------------------------------- Variables statiques
 
-static int canalS[2];
-static int canalABP[2];
-static int canalPBP[2];
-static int canalGB[2];
+static int canalS[ 2 ];
+static int canalABP[ 2 ];
+static int canalPBP[ 2 ];
+static int canalGB[ 2 ];
 static int canalCommun;
 
 //------------------------------------------------------ Fonctions privées
 
-static TypeBarriere getTypeBarriere(int numeroBarriere,TypeUsager usager)
+static TypeBarriere getTypeBarriere ( int numeroBarriere , TypeUsager usager )
 //Mode d'emploi
 //Retourne le TypeBarriere correspondant aux parametres entrés au clavier
 //Met une nouvelle valeur au canal commun qui prend la valeur du canal concerné
 {
-	if (numeroBarriere == 2)
+	if ( numeroBarriere == 2 )
 	{
-		canalCommun = canalGB[1];
+		canalCommun = canalGB[ 1 ];
 		return ENTREE_GASTON_BERGER;
 	}
 	else
 	{
-		if (usager == PROF )
+		if ( usager == PROF )
 		{
-			canalCommun = canalPBP[1];
+			canalCommun = canalPBP[ 1 ];
 			return PROF_BLAISE_PASCAL;
 		}
 		else
 		{
-			canalCommun = canalABP[1];
+			canalCommun = canalABP[ 1 ];
 			return AUTRE_BLAISE_PASCAL;
 		}
 	}
 }
 
-static void requeteEntree(TypeBarriere barriere,TypeUsager usager)
-//Algo
+static void requeteEntree ( TypeBarriere barriere , TypeUsager usager )
+//Algorithme :
 // Ajoute une nouvelle voiture avec ses proprietes à une entree donnée
 {
-	Voiture voiture = Voiture(usager);
-	time_t heureArr = time(NULL);
-	RequeteVoiture message = RequeteVoiture(barriere,voiture,getpid(),heureArr);
-	DessinerVoitureBarriere(barriere, usager );
-	write( canalCommun, &message, sizeof(message) );
+	Voiture voiture = Voiture ( usager );
+	time_t heureArr = time ( NULL );
+	RequeteVoiture message = RequeteVoiture ( barriere , voiture , getpid() , heureArr );
+	DessinerVoitureBarriere ( barriere , usager );
+	write ( canalCommun , &message , sizeof ( message ) );
 	//Communique avec l'entrée choisie pour lui dire de laisser entrer une nouvelle voiture
 }
 
-static void demandeSortie(unsigned int numeroPlace)
+static void demandeSortie ( unsigned int numeroPlace )
 //Algorithme :
 //
 {
-	write(canalS[1],&numeroPlace,sizeof(unsigned int));
+	write ( canalS[1] , &numeroPlace , sizeof ( unsigned int ) );
 }
 
 //////////////////////////////////////////////////////////////////  PUBLIC
 //---------------------------------------------------- Fonctions publiques
-void Clavier ( int canals[2],int canalgb[2],int canalpbp[2],int canalabp[2] )
+void Clavier ( int canals[ 2 ] , int canalgb[ 2 ] , int canalpbp[ 2 ] , int canalabp[ 2 ] )
 // Algorithme :
 //
 {
 	//----------------------------------------------Initialisation
 
 	//----------Ouverture des canaux nommé Clavier-Entree et Sortie
-	canalS[1] = canals[1];
-	canalGB[1] = canalgb[1];
-	canalABP[1] = canalabp[1];
-	canalPBP[1] = canalpbp[1];
+	canalS[ 1 ] = canals[ 1 ];
+	canalGB[ 1 ] = canalgb[ 1 ];
+	canalABP[ 1 ] = canalabp[ 1 ];
+	canalPBP[ 1 ] = canalpbp[ 1 ];
 
 	//Fermeture des cotés non utilisés
-	close(canals[0]);
-	close(canalgb[0]);
-	close(canalabp[0]);
-	close(canalpbp[0]);
+	close ( canals[ 0 ] );
+	close ( canalgb[ 0 ] );
+	close ( canalabp[ 0 ] );
+	close ( canalpbp[ 0 ] );
 
 	//------------------------------------------------Phase Moteur
-	while(true)
+	for( ; ; )
 	{
-		Menu();
+		Menu ( );
 	}
 } //----- fin de Clavier
 
-void Commande ( char code, unsigned int valeur )
+void Commande ( char code , unsigned int valeur )
 // Algorithme :
 //
 {
@@ -115,26 +119,25 @@ void Commande ( char code, unsigned int valeur )
 	{
 	case 'Q' :
 		//Fermeture des canaux de communication avant la fermeture de la tache
-			close(canalS[1]);
-			close(canalGB[1]);
-			close(canalABP[1]);
-			close(canalPBP[1]);
-		exit(0);
+			close ( canalS[ 1 ] );
+			close ( canalGB[ 1 ] );
+			close ( canalABP[ 1 ] );
+			close ( canalPBP[ 1 ] );
+		exit ( 0 );
 		break;
 	case 'P' :
 			//Met un nouveau vehicule prioritaire à une barrière d'entrée
-		 requeteEntree(getTypeBarriere(valeur,PROF),PROF);
+		 requeteEntree ( getTypeBarriere ( valeur , PROF ) , PROF );
 		break;
 	case 'A' :
 			//Met un nouveau véhicule normal à une barrière d'entrée
-		requeteEntree(getTypeBarriere(valeur,AUTRE),AUTRE);
+		requeteEntree ( getTypeBarriere ( valeur , AUTRE ) , AUTRE );
 		break;
 	case 'S' :
 			//Demande de sortie de la voiture placée à la place valeur
-		demandeSortie(valeur);
+		demandeSortie ( valeur );
 		break;
 	default :
 		break;
 	}
 } //----- fin de Commande
-

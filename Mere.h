@@ -11,18 +11,13 @@
 
 //------------------------------------------------------------------------
 // Rôle de la tâche <Mere>
-//
+//	Tâche qui initialise les moyens de communications entre les différentes
+//	tâches filles et qui créé des tâches filles
 //
 //------------------------------------------------------------------------
 
 /////////////////////////////////////////////////////////////////  INCLUDE
 //--------------------------------------------------- Interfaces utilisées
-#include "Clavier.h"
-#include "Outils.h"
-#include "Heure.h"
-#include "Entree.h"
-#include "Sortie.h"
-#include "Util.h"
 
 //------------------------------------------------------------- Constantes
 //------------------------------------------------------------------ Types
@@ -34,7 +29,7 @@
 //
 // Contrat :
 //
-void finHeure (int noSignal);
+int main ( int argc, const char * argv[] );
 // Mode d'emploi :
 //
 // Contrat :

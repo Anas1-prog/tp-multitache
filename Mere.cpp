@@ -17,8 +17,15 @@
 #include <signal.h>
 #include <stdio.h>
 #include <fstream>
+
 //------------------------------------------------------ Include personnel
 #include "Mere.h"
+#include "Clavier.h"
+#include "Outils.h"
+#include "Heure.h"
+#include "Entree.h"
+#include "Sortie.h"
+#include "Util.h"
 
 ///////////////////////////////////////////////////////////////////  PRIVE
 //------------------------------------------------------------- Constantes
@@ -28,23 +35,25 @@
 #define CHMOD_SEMWRITE 200
 #define CHEMIN "Semaphore"
 #define CLEFS 3
-
+#define TYPE_TERMINAL XTERM
 
 
 
 //------------------------------------------------------------------ Types
 
 //---------------------------------------------------- Variables statiques
-static int CanalS[2];
-static int CanalGB[2];
-static int CanalPBP[2];
-static int CanalABP[2];
+static int CanalS[ 2 ];
+static int CanalGB[ 2 ];
+static int CanalPBP[ 2 ];
+static int CanalABP[ 2 ];
 static pid_t clavierPid;
 static pid_t heurePid;
-static pid_t entreeABPPid, entreePBPPid, entreeGBPid;
+static pid_t entreeABPPid;
+static pid_t entreePBPPid;
+static pid_t entreeGBPid;
 static pid_t sortiePid;
 static int semId;
-int const CLEF = ftok ( CHEMIN, CLEFS );
+int const CLEF = ftok ( CHEMIN , CLEFS );
 
 //------------------------------------------------------ Fonctions privées
 //static type nom ( liste de paramètres )
@@ -56,7 +65,14 @@ int const CLEF = ftok ( CHEMIN, CLEFS );
 //
 //{
 //} //----- fin de nom
-void finHeure ( int noSignal )
+static void finHeure ( int noSignal )
+// Mode d'emploi :
+//	Procédure appelée lors de la réception d'un signal SIGUSR2
+// 	pour la tâche Heure
+// Contrat :
+//
+// Algorithme :
+//
 {
 	if ( noSignal == SIGUSR2 )
 	{
@@ -65,11 +81,18 @@ void finHeure ( int noSignal )
 }
 
 
-void destructionMere(int signal)
+static void destructionMere(int signal)
+// Mode d'emploi :
+//	Libération de toutes les ressources allouées pour l'éxécution du programme
+//	ainsi que la demande de fin des tâches filles
+// Contrat :
+//
+// Algorithme :
+//
 {
-	if ( signal == SIGINT)
+	if ( signal == SIGINT )
 	{
-		Handler ( SIGUSR2, finHeure);
+		Handler ( SIGUSR2 , finHeure );
 
 		waitpid ( clavierPid , NULL , 0 ); // Attente de la Fin de la tache Clavier
 		kill ( heurePid , SIGUSR2 );
@@ -84,24 +107,23 @@ void destructionMere(int signal)
 		waitpid( entreePBPPid , NULL , 0 );
 
 		//Suppression de la memoire partagee
-		int memoirePartagee = shmget( CLEF, sizeof(EtatParking),IPC_EXCL);
-		shmctl( memoirePartagee,IPC_RMID,0);
+		int memoirePartagee = shmget ( CLEF , sizeof(EtatParking) , IPC_EXCL );
+		shmctl( memoirePartagee , IPC_RMID , 0 );
 		//Suppression de la semaphore d'exclusion mutuelle
-		semId = semget ( CLEF,1,IPC_EXCL);
-		semctl(semId,0,IPC_RMID,0);
+		semId = semget ( CLEF , 1 , IPC_EXCL );
+		semctl ( semId , 0 , IPC_RMID , 0 );
 		//Libere les canaux de communication
-		close(CanalS[0]);
-		close(CanalS[1]);
-		close(CanalGB[0]);
-		close(CanalGB[1]);
-		close(CanalABP[0]);
-		close(CanalABP[1]);
-		close(CanalPBP[0]);
-		close(CanalPBP[1]);
+		close ( CanalS[ 0 ] );
+		close ( CanalS[ 1 ] );
+		close ( CanalGB[ 0 ] );
+		close ( CanalGB[ 1 ] );
+		close ( CanalABP[ 0 ] );
+		close ( CanalABP[ 1 ] );
+		close ( CanalPBP[ 0 ] );
+		close ( CanalPBP[ 1 ] );
 
-
-		TerminerApplication( true );
-		exit(0);
+		TerminerApplication ( true );
+		exit ( 0 );
 	}
 }
 //////////////////////////////////////////////////////////////////  PUBLIC
@@ -112,95 +134,59 @@ int main ( int argc, const char * argv[] )
 {
 		//--------------------------------------------------Initialisation
 
-	InitialiserApplication( XTERM );
-	Handler ( SIGINT, destructionMere );
+	InitialiserApplication ( TYPE_TERMINAL );
+	Handler ( SIGINT , destructionMere );
 	//Mise en place de la mémoire partagée
-	int memoirePartagee = shmget ( CLEF, sizeof(EtatParking), (IPC_CREAT|IPC_EXCL|CHMOD_MPREAD|CHMOD_MPWRITE) );
-
+	int memoirePartagee = shmget ( CLEF , sizeof ( EtatParking ) , ( IPC_CREAT | IPC_EXCL | CHMOD_MPREAD | CHMOD_MPWRITE ) );
 
 	//Mise en place du Mutex
-	semId = semget ( CLEF, 1, (IPC_CREAT|IPC_EXCL|CHMOD_SEMREAD|CHMOD_SEMWRITE) );
+	semId = semget ( CLEF , 1 , ( IPC_CREAT | IPC_EXCL | CHMOD_SEMREAD | CHMOD_SEMWRITE ) );
 
 	//récupere la mémoire partagée
-	EtatParking  * etat = (EtatParking *)shmat( memoirePartagee, NULL,0);
-	etat->placeLibres=NB_PLACES;
-	etat->nombreRequetes=0;
+	EtatParking  * etat = ( EtatParking * ) shmat ( memoirePartagee , NULL , 0 );
+	etat->placeLibres = NB_PLACES;
+	etat->nombreRequetes = 0;
 	shmdt ( etat );//Libère la mémoire
 
 	//Libere le mutex
-	semaphore(CLEF,1);
+	semaphore ( CLEF , 1 );
 
 	//Création du canal de communication Clavier->EntreeGastonBerger
-	pipe(CanalGB);
+	pipe ( CanalGB );
 	//Création du canal de communication Clavier->EntreeProfBlaisePascal
-	pipe(CanalPBP);
+	pipe ( CanalPBP );
 	//Création du canal de communication Clavier->EntreeProfBlaisePascal
-	pipe(CanalABP);
+	pipe ( CanalABP );
 	//Création du canal de communication Clavier->Sortie
-	pipe(CanalS);
+	pipe ( CanalS );
 
 
-	if ( ( clavierPid = fork() ) == 0 )
+	if ( ( clavierPid = fork( ) ) == 0 )
 	{
-		Clavier(CanalS,CanalGB,CanalPBP,CanalABP); //Création de la tache fille Clavier
+		Clavier ( CanalS , CanalGB , CanalPBP , CanalABP ); //Création de la tache fille Clavier
 	}
-	else if( ( entreeGBPid = fork() ) == 0 )
+	else if( ( entreeGBPid = fork( ) ) == 0 )
 	{
-		Entree(CanalGB,ENTREE_GASTON_BERGER);
+		Entree ( CanalGB , ENTREE_GASTON_BERGER );
 	}
-	else if( ( entreeABPPid = fork() ) == 0 )
+	else if( ( entreeABPPid = fork( ) ) == 0 )
 	{
-		Entree(CanalABP,AUTRE_BLAISE_PASCAL);
+		Entree ( CanalABP , AUTRE_BLAISE_PASCAL );
 	}
-	else if( ( entreePBPPid = fork() ) == 0 )
+	else if( ( entreePBPPid = fork( ) ) == 0 )
 	{
-		Entree(CanalPBP,PROF_BLAISE_PASCAL);
+		Entree ( CanalPBP , PROF_BLAISE_PASCAL );
 	}
-	else if( ( sortiePid = fork() ) == 0 )
+	else if( ( sortiePid = fork( ) ) == 0 )
 	{
-		Sortie(CanalS);
+		Sortie ( CanalS );
 	}
 	else
 	{
 		//---------------------------------------------Phase Moteur
-			heurePid = ActiverHeure();	//Création de la tache fils Heure
+			heurePid = ActiverHeure ( );	//Création de la tache fils Heure
 
 			//---------------------------------------------Destruction
-			Handler ( SIGUSR2, finHeure);
-
 			destructionMere(SIGINT);
 		}
 }
-
-
-
-/*Etape de developpement :
- *
- * - Affichage des voitures aux différentes entrées : communication de la tache clavier avec l'entree
- * concernée
- *
- * - Entrees de voitures fonctionnelles : communication de la tache clavier avec l'entree
- * concernée pour faire entrer une voiture dans le parking
- *
- * - Sortie des vehicules fonctionnelle
- *
- * -Memoire partagéé mise en place
- * -Semaphore d'exclusion mutuelle mise en place
- * -Creation d'une fonction pour agir sur la semaphore : semaphore(int clef, short semOp)
- * -Initialisation de la mémoire à NB_PLACES libres dans mère
- * -Affichage des voitures qui sont entrées dans le parking
- * -Effacement de l'affichage des voitures qui sortent du parking
- *
- *
- * -Creation de requetes d'entree par les Entrées + Affichage des requetes.
- *
- * -Comparaison des requetes par la sortie et envoie du signal à l'entrée qui fait rentrer une voiture
- *
- *	-TODO Fin anormale (CTRL-C) tuer les process proprement
- *	-TODO NB_ENTREES Files de requetes pour chaques portes, représentant les voitures
- *	qui attendent pour rentrer à chaque portes.
- *		-Recalcule de l'heure d'arrivé lorsqu'elle est placée dans la mémoire partagée
- *
- *
- */
- 

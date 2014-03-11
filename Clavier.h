@@ -11,7 +11,8 @@
 
 //------------------------------------------------------------------------
 // Rôle de la tâche <Clavier>
-//
+//	Tâche qui capture les entrées clavier et créé des commandes à partir de
+//	ces entrées
 //
 //------------------------------------------------------------------------
 
@@ -23,10 +24,7 @@
 #include <iostream>
 
 //------------------------------------------------------------- Constantes
-#include "Menu.h"
-#include "Mere.h"
-#include "Outils.h"
-#include "Util.h"
+
 //------------------------------------------------------------------ Types
 
 //////////////////////////////////////////////////////////////////  PUBLIC
@@ -37,9 +35,12 @@
 // Contrat :
 //
 
-void Clavier ( int canalS[2],int canalGB[2],int canalPBP[2],int canalABP[2] );
+void Clavier ( int canalS[ 2 ] , int canalGB[ 2 ] , int canalPBP[ 2 ] , int canalABP[ 2 ] );
 // Mode d'emploi :
-//
+//	<canalS> canal de communication vers une sortie
+//	<canalGB> canal de communication vers l'entrée Gaston Berger
+//	<canalPBP> canal de communication vers l'entrée professeurs Blaise Pascal
+//	<canalABP> canal de communication vers l'entrée autre Blaise Pascal
 // Contrat :
 //
 

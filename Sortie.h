@@ -12,7 +12,7 @@
 
 //------------------------------------------------------------------------
 // Rôle de la tâche <Sortie>
-//
+//	Tâche qui s'occupe de faire sortir des voitures du Parking
 //
 //------------------------------------------------------------------------
 
@@ -33,10 +33,10 @@
 // Contrat :
 //
 
-void Sortie ( int canal[2]);
-void destructionSortie(int numeroSignal);
-void sortieVoiture(int numeroSignal);
-void initialisationSortie();
-
-
+void Sortie ( int canal [ 2 ] );
+// Mode d'emploi :
+//	Procédure de gestion d'une porte de sortie du parking.
+// <canal[2]> canal de communication entre la tache Clavier et la tâche Sortie
+// Contrat :
+//
 #endif /* SORTIE_H_ */

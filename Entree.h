@@ -12,7 +12,7 @@
 
 //------------------------------------------------------------------------
 // Rôle de la tâche <Entree>
-//
+//	Tâche qui s'occupe de la gestion des entrées de voitures à une barrière
 //
 //------------------------------------------------------------------------
 
@@ -33,8 +33,6 @@
 
 //------------------------------------------------------ Include personnel
 
-#include "Mere.h"
-#include "Outils.h"
 //--------------------------------------------------- Interfaces utilisées
 
 //------------------------------------------------------------- Constantes
@@ -44,29 +42,6 @@
 //////////////////////////////////////////////////////////////////  PUBLIC
 //---------------------------------------------------- Fonctions publiques
 // type Nom ( liste de paramètres );
-// Mode d'emploi :
-//
-// Contrat :
-//
-void initialisationEntree();
-// Mode d'emploi :
-//
-// Contrat :
-//
-
-int verificationPlacesLibres();
-// Mode d'emploi :
-//
-// Contrat :
-//
-
-void destructionEntree(int numSignal);
-// Mode d'emploi :
-//
-// Contrat :
-//
-
-void entreeVoiture(int numSignal);
 // Mode d'emploi :
 //
 // Contrat :
