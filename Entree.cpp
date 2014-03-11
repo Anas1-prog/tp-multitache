@@ -16,6 +16,7 @@
 #include "Entree.h"
 #include "Mere.h"
 #include "Outils.h"
+#include "Util.h"
 
 ///////////////////////////////////////////////////////////////////  PRIVE
 //------------------------------------------------------------- Constantes
@@ -39,30 +40,24 @@ extern const key_t CLEF;
 //{
 //} //----- fin de nom
 
-static void requeteEntree ( TypeBarriere barriere , Voiture voiture )
-// Mode d'emploi :Crée une requete de demande d'entrée lorsqu'aucune place n'est occupée
-//
-// Contrat : Gestion de l'affichage à l'écran dans la fonction
-//
-// Algorithme :
+static void destructionEntree ( int numSignal )
+//Mode d'emploi
+//	Declenché par la reception du signal SIGUSR2
+// 	Libération des ressources et des tâches allouées par cette tâche
+//Algorithme
 //
 {
-	time_t heureArr = time ( NULL );
-	RequeteVoiture requete = RequeteVoiture ( barriere , voiture , getpid( ) , heureArr );
-	//Prise du Mutex
-		semaphore( CLEF , -1 );
+	//Masquage du signal SIGCHLD
+	Handler( SIGCHLD , SIG_IGN );
 
-	//Acces memoire partagée
-	int memoirePartagee = shmget ( CLEF , sizeof( EtatParking ), IPC_EXCL );
-	EtatParking * etat = ( EtatParking * ) shmat ( memoirePartagee , NULL , 0 );
-	etat->requetes[ barriere - 1 ] = requete;
-	etat->nombreRequetes++;
-	//Libere le Mutex
-	semaphore ( CLEF , 1 );
-	//Libere la memoire
-	shmdt ( etat );
+	for ( map< pid_t, Voiture > :: iterator iter = voiturierEntree.begin( ) ;
+			iter != voiturierEntree.end( ) ; ++iter )
+	{
 
-	AfficherRequete ( barriere , voiture.usager , heureArr );
+		kill ( iter->first , SIGUSR2 );
+		waitpid ( iter->first , NULL , 0 );
+	}
+	exit ( 0 );
 }
 
 static void entreeVoiture ( int numSignal )
@@ -123,25 +118,36 @@ static void initialisationEntree ( )
 	Handler ( SIGCHLD , entreeVoiture ) ;
 }
 
-static void destructionEntree ( int numSignal )
-//Mode d'emploi
-//	Declenché par la reception du signal SIGUSR2
-// 	Libération des ressources et des tâches allouées par cette tâche
-//Algorithme
+
+static void requeteEntree ( TypeBarriere barriere , Voiture voiture )
+// Mode d'emploi :Crée une requete de demande d'entrée lorsqu'aucune place n'est occupée
+//
+// Contrat : Gestion de l'affichage à l'écran dans la fonction
+//
+// Algorithme :
 //
 {
-	//Masquage du signal SIGCHLD
-	Handler( SIGCHLD , SIG_IGN );
+	time_t heureArr = time ( NULL );
+	RequeteVoiture requete = RequeteVoiture ( barriere , voiture , getpid( ) , heureArr );
+	//Prise du Mutex
+		semaphore( CLEF , -1 );
 
-	for ( map< pid_t, Voiture > :: iterator iter = voiturierEntree.begin( ) ;
-			iter != voiturierEntree.end( ) ; ++iter )
-	{
+	//Acces memoire partagée
+	int memoirePartagee = shmget ( CLEF , sizeof( EtatParking ), IPC_EXCL );
+	EtatParking * etat = ( EtatParking * ) shmat ( memoirePartagee , NULL , 0 );
+	etat->requetes[ barriere - 1 ] = requete;
+	etat->nombreRequetes++;
+	//Libere le Mutex
+	semaphore ( CLEF , 1 );
+	//Libere la memoire
+	shmdt ( etat );
 
-		kill ( iter->first , SIGUSR2 );
-		waitpid ( iter->first , NULL , 0 );
-	}
-	exit ( 0 );
+	AfficherRequete ( barriere , voiture.usager , heureArr );
 }
+
+
+
+
 
 static void passageVoiture ( int numSignal )
 // Mode d'emploi :

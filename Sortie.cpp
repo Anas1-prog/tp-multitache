@@ -43,6 +43,23 @@ extern key_t const CLEF;
 //{
 //} //----- fin de nom
 
+static void destructionSortie ( int signal )
+//Mode d'emploi
+//Appelé lorsqu'on veut détruire la tache sortie
+//Algo
+{
+	if ( signal == SIGINT )
+	//Masquage du signal SIGCHLD
+	Handler ( SIGCHLD , SIG_IGN );
+
+	for ( map < int , pid_t > :: iterator it = voiturierSortie.begin ( ) ;
+			it != voiturierSortie.end( ) ; ++it )
+	{
+		kill ( it->first , SIGUSR2 );
+		waitpid ( it->first , NULL , 0 );
+	}
+	exit ( 0 );
+}
 
 static bool comparaisonPriorite ( RequeteVoiture req1 , RequeteVoiture req2 )
 // Mode d'emploi :
@@ -151,35 +168,6 @@ static void choixEntreePrioritaire ( )
 
 }
 
-static void initialisationSortie ( )
-//Mode d'emploi
-//	Arme le signal SIGUSR2 sur destruction Sortie
-//	et SIGUCHLD sur sortieVoiture
-//Algo
-//
-{
-	Handler ( SIGUSR2 , destructionSortie ) ;
-	Handler ( SIGCHLD , sortieVoiture ) ;
-}
-
-static void destructionSortie ( int signal )
-//Mode d'emploi
-//Appelé lorsqu'on veut détruire la tache sortie
-//Algo
-{
-	if ( signal == SIGINT )
-	//Masquage du signal SIGCHLD
-	Handler ( SIGCHLD , SIG_IGN );
-
-	for ( map < int , pid_t > :: iterator it = voiturierSortie.begin ( ) ;
-			it != voiturierSortie.end( ) ; ++it )
-	{
-		kill ( it->first , SIGUSR2 );
-		waitpid ( it->first , NULL , 0 );
-	}
-	exit ( 0 );
-}
-
 static void sortieVoiture ( int numeroSignal )
 //Mode d'emploi
 //	Libère une place lorsqu'une voiture est complètement sortie
@@ -223,6 +211,19 @@ static void sortieVoiture ( int numeroSignal )
 		}
 	}
 }
+
+static void initialisationSortie ( )
+//Mode d'emploi
+//	Arme le signal SIGUSR2 sur destruction Sortie
+//	et SIGUCHLD sur sortieVoiture
+//Algo
+//
+{
+	Handler ( SIGUSR2 , destructionSortie ) ;
+	Handler ( SIGCHLD , sortieVoiture ) ;
+}
+
+
 //////////////////////////////////////////////////////////////////  PUBLIC
 //---------------------------------------------------- Fonctions publiques
 void Sortie ( int canal[ 2 ] )

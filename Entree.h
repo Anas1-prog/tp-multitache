@@ -32,6 +32,7 @@
 #include <sys/wait.h>
 
 //------------------------------------------------------ Include personnel
+#include "Util.h"
 
 //--------------------------------------------------- Interfaces utilisées
 
